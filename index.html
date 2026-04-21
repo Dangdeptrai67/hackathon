@@ -1,227 +1,627 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PeerPrep — Peer Interview Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>PeerPrep — SVCTE Interview Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+         :root {
+            --bg: #07070d;
+            --bg2: #0f0f18;
+            --bg3: rgba(23, 23, 34, 0.8);
+            --border: rgba(255, 255, 255, 0.06);
+            --border2: rgba(255, 255, 255, 0.12);
+            --text: #eeeef8;
+            --text2: #8888a0;
+            --text3: #4a4a60;
+            --teal: #1dcb8a;
+            --teal-d: rgba(29, 203, 138, 0.10);
+            --coral: #f06b4a;
+            --coral-d: rgba(240, 107, 74, 0.10);
+            --amber: #f5b731;
+            --amber-d: rgba(245, 183, 49, 0.10);
+            --font-d: 'Syne', sans-serif;
+            --font-b: 'DM Sans', sans-serif;
+            --font-m: 'DM Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-b);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 0%, transparent 70%);
+        }
+        
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 60px;
+            background: rgba(7, 7, 13, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .nav-logo {
+            font-family: var(--font-d);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+        
+        .nav-logo span {
+            color: var(--teal);
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color .2s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text);
+        }
+        
+        .nav-cta {
+            background: var(--teal)!important;
+            color: #051a0f!important;
+            padding: 7px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px!important;
+            transition: opacity .2s!important;
+        }
+        
+        .nav-cta:hover {
+            opacity: .85;
+        }
+        
+        section {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7rem 2rem 4rem;
+            text-align: center;
+        }
+        
+        .hero-inner {
+            max-width: 800px;
+        }
+        
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            border-radius: 999px;
+            padding: 5px 16px;
+            font-size: 11px;
+            font-family: var(--font-m);
+            color: var(--text2);
+            margin-bottom: 2rem;
+            letter-spacing: .04em;
+            backdrop-filter: blur(8px);
+        }
+        
+        .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .2;
+            }
+        }
+        
+        h1 {
+            font-family: var(--font-d);
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.02;
+            letter-spacing: -.035em;
+            margin-bottom: 1.5rem;
+        }
+        
+        .line2 {
+            display: block;
+            color: var(--teal);
+        }
+        
+        .hero-sub {
+            font-size: 17px;
+            color: var(--text2);
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.75;
+        }
+        
+        .hero-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .btn-primary {
+            background: var(--teal);
+            color: #051a0f;
+            padding: 14px 32px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: opacity .2s, transform .15s;
+        }
+        
+        .btn-primary:hover {
+            opacity: .88;
+            transform: translateY(-2px);
+        }
+        
+        .btn-ghost {
+            border: 1px solid var(--border2);
+            color: var(--text2);
+            padding: 14px 28px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: border-color .2s, color .2s;
+        }
+        
+        .btn-ghost:hover {
+            border-color: var(--text2);
+            color: var(--text);
+        }
+        
+        .hero-badges {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .hbadge {
+            font-size: 11px;
+            font-family: var(--font-m);
+            padding: 4px 12px;
+            border-radius: 999px;
+            letter-spacing: .04em;
+        }
+        
+        .hb-t {
+            background: var(--teal-d);
+            color: var(--teal);
+            border: 1px solid rgba(29, 203, 138, .2);
+        }
+        
+        .hb-c {
+            background: var(--coral-d);
+            color: var(--coral);
+            border: 1px solid rgba(240, 107, 74, .2);
+        }
+        
+        .hb-a {
+            background: var(--amber-d);
+            color: var(--amber);
+            border: 1px solid rgba(245, 183, 49, .2);
+        }
+        
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+        
+        .section-wrap {
+            padding: 6rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .eyebrow {
+            font-size: 11px;
+            font-family: var(--font-m);
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: .75rem;
+        }
+        
+        .sec-title {
+            font-family: var(--font-d);
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            letter-spacing: -.025em;
+            margin-bottom: 3rem;
+            line-height: 1.1;
+        }
+        /* HOW TO */
+        
+        .how-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .how-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: border-color .2s, transform .2s;
+        }
+        
+        .how-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-3px);
+        }
+        
+        .how-card.feat {
+            border-color: var(--teal);
+            background: rgba(29, 203, 138, .03);
+        }
+        
+        .how-num {
+            font-family: var(--font-d);
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: transparent;
+            -webkit-text-stroke: 1px var(--border2);
+            margin-bottom: .875rem;
+            line-height: 1;
+        }
+        
+        .how-card h3 {
+            font-family: var(--font-d);
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+        
+        .how-card p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.65;
+        }
+        /* TEAM */
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .team-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.875rem;
+            transition: border-color .2s, transform .2s;
+        }
+        
+        .team-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-3px);
+        }
+        
+        .t-av {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-d);
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 1.125rem;
+        }
+        
+        .av-t {
+            background: var(--teal-d);
+            color: var(--teal);
+        }
+        
+        .av-a {
+            background: var(--amber-d);
+            color: var(--amber);
+        }
+        
+        .av-c {
+            background: var(--coral-d);
+            color: var(--coral);
+        }
+        
+        .team-card h3 {
+            font-family: var(--font-d);
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+        
+        .t-role {
+            font-size: 12px;
+            font-family: var(--font-m);
+            margin-bottom: 3px;
+        }
+        
+        .t-school {
+            font-size: 12px;
+            font-family: var(--font-m);
+            color: var(--text3);
+            margin-bottom: .875rem;
+        }
+        
+        .team-card p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.65;
+            margin-bottom: .875rem;
+        }
+        
+        .t-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-family: var(--font-m);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+        
+        .tt-t {
+            background: var(--teal-d);
+            color: var(--teal);
+        }
+        
+        .tt-a {
+            background: var(--amber-d);
+            color: var(--amber);
+        }
+        
+        .tt-c {
+            background: var(--coral-d);
+            color: var(--coral);
+        }
+        /* CTA */
+        
+        .cta-s {
+            padding: 5rem 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-box {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        
+        .cta-box h2 {
+            font-family: var(--font-d);
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -.025em;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-box p {
+            color: var(--text2);
+            font-size: 15px;
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.75rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .f-logo {
+            font-family: var(--font-d);
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text2);
+        }
+        
+        .f-logo span {
+            color: var(--teal);
+        }
+        
+        .f-note {
+            font-size: 11px;
+            font-family: var(--font-m);
+            color: var(--text3);
+        }
+        
+        .fu {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .65s ease, transform .65s ease;
+        }
+        
+        .fu.v {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
+
 <body>
+    <div class="grid-bg"></div>
+    <nav>
+        <div class="nav-logo">Peer<span>Prep</span></div>
+        <div class="nav-links">
+            <a href="#how">How to use</a>
+            <a href="#team">Team</a>
+            <a href="dashboard.html" class="nav-cta">Open Dashboard →</a>
+        </div>
+    </nav>
 
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="nav-logo">PeerPrep</div>
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#team">Team</a>
-      <a href="#setup">Setup</a>
-      <a href="dashboard.html" class="nav-cta">Open Dashboard</a>
-    </div>
-  </nav>
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-tag">
+                <div class="tag-dot"></div>Built at SVCTE · Mechatronics · Cybersecurity · Electric car</div>
+            <h1>Practice interviews.<br><span class="line2">Get better faster.</span></h1>
+            <p class="hero-sub">PeerPrep records your mock interviews, analyses your face expressions, voice fluency, and speech — then tells you exactly what to fix.</p>
+            <div class="hero-btns">
+                <a href="dashboard.html" class="btn-primary">▶ Open Dashboard</a>
+                <a href="#how" class="btn-ghost">How it works ↓</a>
+            </div>
+            <div class="hero-badges">
+                <span class="hbadge hb-t">Face expression AI</span>
+                <span class="hbadge hb-c">Voice fluency</span>
+                <span class="hbadge hb-a">Speech paraphraser</span>
+                <span class="hbadge hb-t">Video storage</span>
+                <span class="hbadge hb-c">Improvement timeline</span>
+            </div>
+        </div>
+    </section>
+    <hr class="divider" />
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-content">
-      <div class="hero-tag">Built in VS Code · 3-person team · 1 day</div>
-      <h1 class="hero-title">Record. Review.<br><span class="accent">Get better.</span></h1>
-      <p class="hero-sub">A peer interview platform for students. Record sessions, play back your performance, and get AI critique on communication skills — secured end-to-end.</p>
-      <div class="hero-btns">
-        <a href="dashboard.html" class="btn-primary">Start a session</a>
-        <a href="#setup" class="btn-ghost">Setup guide ↓</a>
-      </div>
-      <div class="hero-badges">
-        <span class="badge badge-teal">Mechatronics</span>
-        <span class="badge badge-coral">Cybersecurity</span>
-        <span class="badge badge-amber">Electric car</span>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="mock-card">
-        <div class="mock-header">
-          <div class="mock-dot red"></div>
-          <div class="mock-dot yellow"></div>
-          <div class="mock-dot green"></div>
-          <span class="mock-title">Live session</span>
+    <section id="how">
+        <div class="section-wrap">
+            <div class="eyebrow fu">How to use</div>
+            <div class="sec-title fu">Five steps to a stronger interview</div>
+            <div class="how-grid">
+                <div class="how-card fu">
+                    <div class="how-num">01</div>
+                    <h3>Open the dashboard</h3>
+                    <p>Click "Open Dashboard". Allow camera and microphone when the browser asks — both are needed for recording and analysis.</p>
+                </div>
+                <div class="how-card feat fu">
+                    <div class="how-num">02</div>
+                    <h3>Pick a question</h3>
+                    <p>Go to the Question Bank tab. Browse 20+ real interview questions with answer scripts. Click "Use this question" to load it into your session.</p>
+                </div>
+                <div class="how-card fu">
+                    <div class="how-num">03</div>
+                    <h3>Record your answer</h3>
+                    <p>Press Record and answer out loud. The app analyses your face expressions, voice fluency, and transcribes every word in real time.</p>
+                </div>
+                <div class="how-card fu">
+                    <div class="how-num">04</div>
+                    <h3>Review and paraphrase</h3>
+                    <p>Go to Recordings → Review. See your full breakdown, watch the video back, and get an AI-paraphrased version of your answer showing how to say it better.</p>
+                </div>
+                <div class="how-card fu">
+                    <div class="how-num">05</div>
+                    <h3>Improve and repeat</h3>
+                    <p>The timeline shows which parts of your answer need work. Practise again, delete old recordings, and track your score improving over time.</p>
+                </div>
+            </div>
         </div>
-        <div class="mock-video">
-          <div class="rec-ring"></div>
-          <div class="mock-avatar">A</div>
-          <div class="rec-label">● REC 02:34</div>
-        </div>
-        <div class="mock-scores">
-          <div class="score-row"><span>Clarity</span><div class="score-bar"><div class="score-fill" style="width:82%"></div></div><span>82%</span></div>
-          <div class="score-row"><span>Pace</span><div class="score-bar"><div class="score-fill amber" style="width:67%"></div></div><span>67%</span></div>
-          <div class="score-row"><span>Structure</span><div class="score-bar"><div class="score-fill" style="width:91%"></div></div><span>91%</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
+    <hr class="divider" />
 
-  <!-- FEATURES -->
-  <section class="features" id="features">
-    <div class="section-label">What it does</div>
-    <h2 class="section-title">Three disciplines. One platform.</h2>
-    <div class="features-grid">
-      <div class="feature-card teal">
-        <div class="feature-icon">⬡</div>
-        <h3>Mechatronics</h3>
-        <p>Raspberry Pi pod triggers recording via GPIO button. LED ring shows session state. Door sensor auto-stops on privacy breach.</p>
-        <div class="feature-tags">
-          <span>Raspberry Pi 5</span><span>GPIO</span><span>ffmpeg</span><span>MQTT</span>
-        </div>
-      </div>
-      <div class="feature-card coral">
-        <div class="feature-icon">⬡</div>
-        <h3>Cybersecurity</h3>
-        <p>JWT-authenticated API. DTLS-SRTP encrypted WebRTC. RBAC roles for students and instructors. Zero critical vulnerabilities (Snyk-verified).</p>
-        <div class="feature-tags">
-          <span>JWT</span><span>SRTP</span><span>RBAC</span><span>OWASP</span>
-        </div>
-      </div>
-      <div class="feature-card amber">
-        <div class="feature-icon">⬡</div>
-        <h3>Electric car</h3>
-        <p>EV charging station acts as the IoT power hub. Publishes battery state over MQTT. Pod gracefully shuts down recording when power drops below 10%.</p>
-        <div class="feature-tags">
-          <span>OCPP</span><span>CAN bus</span><span>MQTT</span><span>SoC</span>
-        </div>
-      </div>
-    </div>
-  </section>
+    <section id="team">
+        <div class="section-wrap">
+            <div class="eyebrow fu">The team</div>
+            <div class="sec-title fu">Built by SVCTE students</div>
+            <div class="team-grid">
+                <div class="team-card fu">
+                    <div class="t-av av-t">D</div>
+                    <h3>Dang</h3>
+                    <div class="t-role" style="color:var(--teal);">Mechatronics</div>
+                    <div class="t-school">SVCTE</div>
+                </div>
+                <div class="team-card fu">
+                    <div class="t-av av-a">G</div>
+                    <h3>Giovanni</h3>
+                    <div class="t-role" style="color:var(--amber);">Electric car</div>
+                    <div class="t-school">SVCTE</div>
+                </div>
+                <div class="team-card fu">
+                    <div class="t-av av-c">K</div>
+                    <h3>Kaymer</h3>
+                    <div class="t-role" style="color:var(--coral);">Cybersecurity</div>
+                    <div class="t-school">SVCTE</div>
+                </div>
+            </div>
+    </section>
 
-  <!-- TEAM -->
-  <section class="team" id="team">
-    <div class="section-label">The team</div>
-    <h2 class="section-title">Who builds what</h2>
-    <div class="team-grid">
-      <div class="team-card you">
-        <div class="you-badge">You</div>
-        <div class="team-avatar teal-av">M</div>
-        <h3>Mechatronics</h3>
-        <p class="team-sub">Intermediate · VS Code + Python</p>
-        <ul>
-          <li>Wire the interview pod</li>
-          <li>Write pod_controller.py</li>
-          <li>MQTT publish pod/status</li>
-          <li>ffmpeg recording trigger</li>
-        </ul>
-        <div class="team-file">firmware/pod_controller.py</div>
-      </div>
-      <div class="team-card">
-        <div class="team-avatar coral-av">C</div>
-        <h3>Cybersecurity</h3>
-        <p class="team-sub">VS Code + TypeScript</p>
-        <ul>
-          <li>Build JWT middleware</li>
-          <li>Configure coturn DTLS</li>
-          <li>RBAC student/instructor</li>
-          <li>Run OWASP ZAP scan</li>
-        </ul>
-        <div class="team-file">server/src/auth.ts</div>
-      </div>
-      <div class="team-card">
-        <div class="team-avatar amber-av">E</div>
-        <h3>Electric car</h3>
-        <p class="team-sub">VS Code + Node.js</p>
-        <ul>
-          <li>OCPP WebSocket server</li>
-          <li>CAN bus SoC reading</li>
-          <li>MQTT publish ev/power</li>
-          <li>Low-power pod shutdown</li>
-        </ul>
-        <div class="team-file">server/src/ev_hub.js</div>
-      </div>
-    </div>
-  </section>
+    <section class="cta-s">
+        <div class="cta-box fu">
+            <h2>Ready to practise?</h2>
+            <p>Open the dashboard, hit Record, and get your first AI-powered interview critique in under 2 minutes. No signup required.</p>
+            <a href="dashboard.html" class="btn-primary">▶ Open Dashboard</a>
+        </div>
+    </section>
 
-  <!-- SETUP GUIDE -->
-  <section class="setup" id="setup">
-    <div class="section-label">Setup guide</div>
-    <h2 class="section-title">Running on your laptop in 5 steps</h2>
-    <div class="steps">
-      <div class="step-item">
-        <div class="step-num">01</div>
-        <div class="step-content">
-          <h4>Clone the repo & open in VS Code</h4>
-          <div class="code-block">
-            <span class="cm"># In your terminal</span><br>
-            git clone https://github.com/yourteam/peerprep<br>
-            cd peerprep<br>
-            code .
-          </div>
-          <p>VS Code will prompt you to install recommended extensions — click <strong>Install All</strong>.</p>
-        </div>
-      </div>
-      <div class="step-item">
-        <div class="step-num">02</div>
-        <div class="step-content">
-          <h4>Install dependencies</h4>
-          <div class="code-block">
-            npm install<br>
-            pip install RPi.GPIO paho-mqtt requests --break-system-packages
-          </div>
-          <p>The root <code>package.json</code> installs both the client and server with one command.</p>
-        </div>
-      </div>
-      <div class="step-item">
-        <div class="step-num">03</div>
-        <div class="step-content">
-          <h4>Copy .env and add secrets</h4>
-          <div class="code-block">
-            cp .env.example .env<br>
-            <span class="cm"># Edit .env:</span><br>
-            JWT_SECRET=your_secret_here<br>
-            MQTT_BROKER=localhost<br>
-            S3_BUCKET=your-bucket-name
-          </div>
-          <p>The JWT secret must match across all three modules. Share it at the 11 AM sync.</p>
-        </div>
-      </div>
-      <div class="step-item">
-        <div class="step-num">04</div>
-        <div class="step-content">
-          <h4>Start all services</h4>
-          <div class="code-block">
-            npm run dev<br>
-            <span class="cm"># Starts: React client (3000), Node server (3001), coturn</span><br>
-            <br>
-            <span class="cm"># On the Pi (separate terminal):</span><br>
-            python firmware/pod_controller.py
-          </div>
-          <p>Open <code>http://localhost:3000</code> in your browser to see the dashboard.</p>
-        </div>
-      </div>
-      <div class="step-item">
-        <div class="step-num">05</div>
-        <div class="step-content">
-          <h4>Run the smoke test</h4>
-          <div class="code-block">
-            npm test<br>
-            npm run audit<br>
-            <span class="cm"># Should show: 0 critical vulnerabilities</span>
-          </div>
-          <p>If all tests pass, you're ready to record a peer interview session. Press the pod button to start.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    <footer>
+        <div class="f-logo">Peer<span>Prep</span></div>
+        <div class="f-note">SVCTE · Dang · Giovanni · Kaymer · Built in VS Code</div>
+    </footer>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-logo">PeerPrep</div>
-      <div class="footer-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="#setup">Setup</a>
-        <a href="#team">Team</a>
-      </div>
-      <div class="footer-note">Built in VS Code · Mechatronics + Cybersecurity + Electric car · 1 day</div>
-    </div>
-  </footer>
-
-  <script src="js/main.js"></script>
+    <script>
+        const obs = new IntersectionObserver(e => e.forEach(x => {
+            if (x.isIntersecting) x.target.classList.add('v');
+        }), {
+            threshold: 0.08
+        });
+        document.querySelectorAll('.fu').forEach(el => obs.observe(el));
+    </script>
 </body>
+
 </html>
