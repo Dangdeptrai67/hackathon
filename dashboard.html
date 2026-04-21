@@ -254,6 +254,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
           <h2>Interview session</h2>
           <span class="badge badge-ready" id="rec-badge">Ready</span>
         </div>
+        <div style="padding:8px 1.25rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;font-family:var(--font-m);color:var(--text3);display:flex;align-items:center;gap:8px;">
+          <span>🔇</span> For best results, find a quiet place before recording — background noise affects your fluency and clarity scores.
+        </div>
         <div class="session-layout">
           <div class="videos">
             <div class="video-slot">
@@ -363,14 +366,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
               <div class="pb-card-title">Overall score</div>
               <div class="score-big green" id="pb-overall">--</div>
               <div style="font-size:12px;color:var(--text3);" id="pb-grade">--</div>
+              <div id="pb-short-warning" style="display:none;margin-top:8px;font-size:11px;font-family:var(--font-m);color:var(--amber);background:var(--amber-d);border-radius:6px;padding:5px 8px;">⚠ Short session — scores may be low</div>
+              <div style="margin-top:12px;font-size:11px;font-family:var(--font-m);color:var(--text3);">
+                <div style="margin-bottom:3px;">Score weights</div>
+                <div style="color:var(--text2);">Clarity 30% · Fluency 25%</div>
+                <div style="color:var(--text2);">Expression 25% · Confidence 20%</div>
+              </div>
             </div>
             <div class="pb-card">
               <div class="pb-card-title">Breakdown</div>
-              <div class="breakdown-row"><span>Clarity</span><span class="bval g" id="pb-clarity">--</span></div>
-              <div class="breakdown-row"><span>Fluency</span><span class="bval g" id="pb-fluency">--</span></div>
-              <div class="breakdown-row"><span>Expression</span><span class="bval w" id="pb-expression">--</span></div>
-              <div class="breakdown-row"><span>Filler words</span><span class="bval w" id="pb-fillers">--</span></div>
-              <div class="breakdown-row"><span>Eye contact</span><span class="bval g" id="pb-eye">--</span></div>
+              <div id="pb-breakdown"></div>
+            </div>
+            <div class="pb-card" style="grid-column:1/-1;background:var(--bg);border:1px solid var(--border);">
+              <div class="pb-card-title">Question answered</div>
+              <div id="pb-question" style="font-size:13px;color:var(--text2);line-height:1.6;margin-top:4px;font-style:italic;">--</div>
             </div>
             <div class="transcript-box">
               <div class="pb-card-title">Transcript</div>
@@ -378,7 +387,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
             </div>
             <div class="ai-feedback">
               <div class="pb-card-title" style="color:var(--purple);">AI feedback</div>
-              <p id="pb-feedback">--</p>
+              <div id="pb-feedback"></div>
             </div>
           </div>
         </div>
@@ -743,25 +752,33 @@ function finaliseRecording() {
   const url  = URL.createObjectURL(blob);
   const duration = seconds;
 
-  // Compute final scores
-  const overall = Math.round((liveMetrics.clarity + liveMetrics.fluency + liveMetrics.expression + liveMetrics.confidence) / 4);
-  const eyeContact = Math.round(65 + Math.random()*25);
+  // Use actual accumulated metrics — 0 is a valid score (silent/short session).
+  // Only use random fallback if the camera was blocked and stream never started.
+  const cameraWasBlocked = !localStream;
+  const clarity    = cameraWasBlocked ? Math.round(55 + Math.random()*30) : liveMetrics.clarity;
+  const fluency    = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.fluency;
+  const expression = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.expression;
+  const confidence = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.confidence;
+  // Eye contact tracks with fluency — can't be high if nothing was said
+  const eyeContact = cameraWasBlocked
+    ? Math.round(60 + Math.random()*30)
+    : Math.min(99, Math.round(fluency * 0.9 + Math.random()*10));
+
+  // Weighted overall: clarity 30%, fluency 25%, expression 25%, confidence 20%
+  const weighted = Math.round(clarity*0.30 + fluency*0.25 + expression*0.25 + confidence*0.20);
+
+  // Filler penalty: each filler over 3 costs 1 point, capped at -10
+  const fillerPenalty = Math.min(10, Math.max(0, fillerCount - 3));
+  const overall = Math.max(0, weighted - fillerPenalty);
 
   const rec = {
     id: Date.now(),
     name: `Interview session — ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`,
     date: new Date().toLocaleDateString(),
     duration: `${String(Math.floor(duration/60)).padStart(2,'0')}:${String(duration%60).padStart(2,'0')}`,
+    shortSession: duration < 30,
     url,
-    scores: {
-      overall: overall || 72,
-      clarity: liveMetrics.clarity || Math.round(65+Math.random()*25),
-      fluency: liveMetrics.fluency || Math.round(60+Math.random()*30),
-      expression: liveMetrics.expression || Math.round(55+Math.random()*35),
-      confidence: liveMetrics.confidence || Math.round(60+Math.random()*30),
-      fillers: fillerCount,
-      eyeContact,
-    },
+    scores: { overall, clarity, fluency, expression, confidence, fillers: fillerCount, eyeContact },
     transcript: transcript || 'No transcript available — speech recognition may not be supported in this browser.',
     question: QUESTIONS[qIndex].q,
   };
@@ -773,8 +790,22 @@ function finaliseRecording() {
 
 function updateLiveMetrics() {
   if (!recording) return;
-  liveMetrics.clarity    = Math.min(99, liveMetrics.clarity    + Math.floor(Math.random()*6));
-  liveMetrics.confidence = Math.min(99, liveMetrics.confidence + Math.floor(Math.random()*5));
+
+  // Only increment clarity/confidence if the mic is actually picking up sound.
+  // Use the analyser average as a speech proxy — if silent, scores don't rise.
+  let speechLevel = 0;
+  if (analyser) {
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    speechLevel = data.reduce((a, b) => a + b, 0) / data.length;
+  }
+
+  // Require meaningful audio (threshold ~8) before crediting clarity/confidence
+  if (speechLevel > 8) {
+    liveMetrics.clarity    = Math.min(99, liveMetrics.clarity    + Math.floor(Math.random()*4) + 1);
+    liveMetrics.confidence = Math.min(99, liveMetrics.confidence + Math.floor(Math.random()*3) + 1);
+  }
+
   renderMetric('clarity',    liveMetrics.clarity);
   renderMetric('confidence', liveMetrics.confidence);
 }
@@ -894,23 +925,56 @@ function openPlayback(id) {
   el('pb-overall').className   = 'score-big ' + (overall>=80?'green':overall>=60?'amber':'red');
   setText('pb-grade', gradeText);
 
-  setText('pb-clarity',    s.clarity + '%');
-  setText('pb-fluency',    s.fluency + '%');
-  setText('pb-expression', s.expression + '%');
-  setText('pb-fillers',    s.fillers + ' detected');
-  setText('pb-eye',        s.eyeContact + '%');
+  // Short session warning
+  el('pb-short-warning').style.display = rec.shortSession ? 'block' : 'none';
 
-  ['pb-clarity','pb-fluency','pb-expression','pb-eye'].forEach(eid => {
-    const v = parseInt(el(eid).textContent);
-    el(eid).className = 'bval ' + (v>=75?'g':v>=55?'w':'b');
+  // Question answered
+  setText('pb-question', rec.question || '—');
+
+  // Visual breakdown rows
+  const breakdown = el('pb-breakdown');
+  breakdown.innerHTML = '';
+  const metrics = [
+    { label:'Clarity',      val: s.clarity,    weight:'30%' },
+    { label:'Fluency',      val: s.fluency,     weight:'25%' },
+    { label:'Expression',   val: s.expression,  weight:'25%' },
+    { label:'Confidence',   val: s.confidence,  weight:'20%' },
+    { label:'Eye contact',  val: s.eyeContact,  weight:null  },
+    { label:'Filler words', val: null,           fillers: s.fillers },
+  ];
+  metrics.forEach(m => {
+    const row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:10px;';
+    if (m.fillers !== undefined) {
+      const color = m.fillers <= 3 ? 'var(--teal)' : m.fillers <= 7 ? 'var(--amber)' : 'var(--coral)';
+      row.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="color:var(--text2);">Filler words</span>
+          <span style="font-family:var(--font-m);font-size:11px;color:${color};">${m.fillers} detected</span>
+        </div>`;
+    } else {
+      const color = m.val>=75 ? 'var(--teal)' : m.val>=55 ? 'var(--amber)' : 'var(--coral)';
+      const weightLabel = m.weight ? `<span style="font-size:10px;color:var(--text3);margin-left:4px;">(${m.weight})</span>` : '';
+      row.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="color:var(--text2);">${m.label}${weightLabel}</span>
+          <span style="font-family:var(--font-m);font-size:11px;color:${color};">${m.val}%</span>
+        </div>
+        <div style="height:3px;background:var(--bg);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${m.val}%;background:${color};border-radius:2px;transition:width .6s ease;"></div>
+        </div>`;
+    }
+    breakdown.appendChild(row);
   });
 
+  // Transcript
   setText('pb-transcript', rec.transcript || 'No transcript recorded.');
+
+  // AI Feedback as bullet list
   el('pb-feedback').innerHTML = generateFeedback(rec);
 
   buildWaveform();
-  const audio = el('pb-audio');
-  if (rec.url) audio.src = rec.url;
+  if (rec.url) el('pb-audio').src = rec.url;
 
   el('playback-panel').scrollIntoView({ behavior:'smooth' });
 }
@@ -981,14 +1045,51 @@ function scrubPlayback(e) {
 function generateFeedback(rec) {
   const s = rec.scores;
   const tips = [];
-  if (s.fluency < 65) tips.push('<strong>Fluency:</strong> You had noticeable pauses. Practise answering out loud daily — even just 2 minutes in the mirror.');
-  else tips.push('<strong>Fluency:</strong> Good speech flow. Keep it up.');
-  if (s.expression < 65) tips.push('<strong>Expression:</strong> Your face appeared tense. Try smiling slightly at the start — it signals confidence and relaxes your muscles.');
-  else tips.push('<strong>Expression:</strong> Natural facial expressions detected. This builds rapport with interviewers.');
-  if (s.fillers > 5) tips.push(`<strong>Filler words:</strong> ${s.fillers} fillers detected (um, uh, like). Replace them with a brief pause — silence sounds more confident than fillers.`);
-  if (s.eyeContact < 70) tips.push('<strong>Eye contact:</strong> Look directly at the camera, not at your own face on screen. It reads as direct eye contact to the interviewer.');
-  if (s.clarity >= 75) tips.push('<strong>Clarity:</strong> Your answer structure was clear and well-organised.');
-  return tips.join(' ') || 'Good overall performance. Keep practising consistently.';
+
+  // Fluency
+  if (s.fluency < 50)
+    tips.push({ icon:'🔴', text:'<strong>Fluency:</strong> Many noticeable pauses detected. Try recording yourself answering questions daily — even 2 minutes helps build flow.' });
+  else if (s.fluency < 70)
+    tips.push({ icon:'🟡', text:'<strong>Fluency:</strong> Some hesitation in your delivery. Focus on slowing down and breathing — rushing causes more stumbles than pausing.' });
+  else
+    tips.push({ icon:'🟢', text:'<strong>Fluency:</strong> Good speech flow throughout the session.' });
+
+  // Expression
+  if (s.expression < 50)
+    tips.push({ icon:'🔴', text:'<strong>Expression:</strong> Your face appeared quite tense. Smile briefly at the start — it relaxes your muscles and signals confidence.' });
+  else if (s.expression < 70)
+    tips.push({ icon:'🟡', text:'<strong>Expression:</strong> Slightly stiff at times. Try to let your natural expressions come through.' });
+  else
+    tips.push({ icon:'🟢', text:'<strong>Expression:</strong> Natural facial expressions throughout — this builds rapport with interviewers.' });
+
+  // Clarity
+  if (s.clarity < 55)
+    tips.push({ icon:'🔴', text:'<strong>Clarity:</strong> Your answer structure was hard to follow. Try the STAR method: Situation → Task → Action → Result.' });
+  else if (s.clarity < 75)
+    tips.push({ icon:'🟡', text:'<strong>Clarity:</strong> Structure was okay but could be sharper. Lead with your conclusion, then support it.' });
+  else
+    tips.push({ icon:'🟢', text:'<strong>Clarity:</strong> Clear and well-organised answers.' });
+
+  // Eye contact
+  if (s.eyeContact < 60)
+    tips.push({ icon:'🟡', text:'<strong>Eye contact:</strong> Look directly at the camera lens, not at your own face on screen — it reads as direct eye contact to the interviewer.' });
+
+  // Fillers
+  if (s.fillers > 7)
+    tips.push({ icon:'🔴', text:`<strong>Filler words:</strong> ${s.fillers} fillers detected (um, uh, like). Replace them with a deliberate pause — silence sounds more confident than fillers.` });
+  else if (s.fillers > 3)
+    tips.push({ icon:'🟡', text:`<strong>Filler words:</strong> ${s.fillers} fillers detected. You're aware of them — now work on catching yourself before they come out.` });
+  else if (s.fillers > 0)
+    tips.push({ icon:'🟢', text:`<strong>Filler words:</strong> Only ${s.fillers} filler${s.fillers!==1?'s':''} — very clean delivery.` });
+
+  if (tips.length === 0) return '<p style="color:var(--text2);font-size:13px;">Great overall performance. Keep practising consistently.</p>';
+
+  return tips.map(t =>
+    `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);line-height:1.6;">
+      <span style="flex-shrink:0;font-size:12px;margin-top:2px;">${t.icon}</span>
+      <span>${t.text}</span>
+    </div>`
+  ).join('');
 }
 
 function updateQuestion() {
