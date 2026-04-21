@@ -3,211 +3,223 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PeerPrep — Interview Dashboard</title>
+<title>PeerPrep — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<!-- face-api.js removed — library was loaded but never initialised (saves ~1MB) -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <style>
-:root {
-  --bg:#0a0a0f; --bg2:#111118; --bg3:#1a1a24; --bg4:#22222e;
-  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
-  --text:#f0f0f8; --text2:#9090a8; --text3:#55556a;
-  --teal:#1dcb8a; --teal-d:rgba(29,203,138,0.12);
-  --coral:#f06b4a; --coral-d:rgba(240,107,74,0.12);
-  --amber:#f5b731; --amber-d:rgba(245,183,49,0.12);
-  --red:#ff4f4f; --red-d:rgba(255,79,79,0.12);
-  --purple:#8b6fff; --purple-d:rgba(139,111,255,0.12);
-  --blue:#4a9eff; --blue-d:rgba(74,158,255,0.12);
-  --font-d:'Syne',sans-serif; --font-b:'DM Sans',sans-serif; --font-m:'DM Mono',monospace;
-  --r:12px; --r-s:8px;
+:root{
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222e;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f8;--text2:#9090a8;--text3:#55556a;
+  --teal:#1dcb8a;--td:rgba(29,203,138,0.12);
+  --coral:#f06b4a;--cd:rgba(240,107,74,0.12);
+  --amber:#f5b731;--ad:rgba(245,183,49,0.12);
+  --red:#ff4f4f;--rd:rgba(255,79,79,0.12);
+  --purple:#9b7fff;--pd:rgba(155,127,255,0.12);
+  --blue:#4a9eff;--bd:rgba(74,158,255,0.12);
+  --font-d:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;--font-m:'DM Mono',monospace;
+  --r:12px;--rs:8px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;height:100vh;overflow:hidden;}
 
 /* SIDEBAR */
-.sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0;flex-shrink:0;}
-.sidebar-logo{padding:1.25rem 1.25rem 0;font-family:var(--font-d);font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:1.5rem;}
-.sidebar-logo span{color:var(--teal);}
-.nav-section{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:0 1.25rem;margin-bottom:6px;}
-.nav-link{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;color:var(--text2);font-size:13px;cursor:pointer;transition:background .15s,color .15s;border-left:2px solid transparent;}
-.nav-link:hover{background:var(--bg3);color:var(--text);}
-.nav-link.active{background:var(--teal-d);color:var(--teal);border-left-color:var(--teal);}
-.nav-icon{font-size:14px;width:16px;text-align:center;}
-.sidebar-bottom{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border);}
-.status-row{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--font-m);color:var(--text3);margin-bottom:6px;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.s-logo{padding:1.25rem 1.25rem .5rem;font-family:var(--font-d);font-size:18px;font-weight:800;letter-spacing:-.02em;}
+.s-logo span{color:var(--teal);}
+.s-sec{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:0 1.25rem;margin:1rem 0 4px;}
+.nl{display:flex;align-items:center;gap:9px;padding:8px 1.25rem;color:var(--text2);font-size:13px;cursor:pointer;transition:background .15s,color .15s;border-left:2px solid transparent;}
+.nl:hover{background:var(--bg3);color:var(--text);}
+.nl.active{background:var(--td);color:var(--teal);border-left-color:var(--teal);}
+.ni{font-size:13px;width:15px;text-align:center;}
+.s-home{display:flex;align-items:center;gap:8px;margin:auto 1rem 1rem;padding:9px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text2);font-size:12px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
+.s-home:hover{border-color:var(--teal);color:var(--teal);}
+.s-bottom{padding:.75rem 1.25rem;border-top:1px solid var(--border);}
+.sr{display:flex;align-items:center;gap:7px;font-size:11px;font-family:var(--font-m);color:var(--text3);margin-bottom:5px;}
 .dot{width:7px;height:7px;border-radius:50%;}
-.dot-green{background:var(--teal);animation:pulse 2s infinite;}
-.dot-amber{background:var(--amber);}
-.dot-red{background:var(--red);}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.dg{background:var(--teal);animation:p 2s infinite;}
+.da{background:var(--amber);}
+.dr{background:var(--red);}
+@keyframes p{0%,100%{opacity:1;}50%{opacity:.3;}}
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
-.topbar{padding:1.25rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:10;}
-.page-title{font-family:var(--font-d);font-size:20px;font-weight:800;letter-spacing:-.02em;}
-.page-sub{font-size:12px;color:var(--text3);margin-top:2px;}
-.user-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:999px;padding:5px 14px 5px 6px;font-size:13px;}
-.av{width:28px;height:28px;border-radius:50%;background:var(--purple-d);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-.content{padding:1.5rem 1.75rem;display:flex;flex-direction:column;gap:1.25rem;}
+.topbar{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:10;}
+.page-title{font-family:var(--font-d);font-size:18px;font-weight:800;letter-spacing:-.02em;}
+.page-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.content{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1.125rem;}
 
-/* PANELS */
+/* PANEL */
 .panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.panel-head{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-bottom:1px solid var(--border);}
-.panel-head h2{font-family:var(--font-d);font-size:14px;font-weight:700;}
-.badge{font-size:10px;font-family:var(--font-m);padding:3px 10px;border-radius:999px;}
-.badge-rec{background:var(--red-d);color:var(--red);animation:pulse 1.2s infinite;}
-.badge-ready{background:var(--bg3);color:var(--text3);}
-.badge-done{background:var(--teal-d);color:var(--teal);}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.25rem;border-bottom:1px solid var(--border);}
+.ph h2{font-family:var(--font-d);font-size:14px;font-weight:700;}
+.badge{font-size:10px;font-family:var(--font-m);padding:3px 9px;border-radius:999px;}
+.b-rec{background:var(--rd);color:var(--red);animation:p 1.1s infinite;}
+.b-ready{background:var(--bg3);color:var(--text3);}
+.b-done{background:var(--td);color:var(--teal);}
 
-/* SESSION AREA */
-.session-layout{display:grid;grid-template-columns:1fr 300px;min-height:260px;}
-.videos{display:grid;grid-template-columns:1fr 1fr;background:#050810;border-right:1px solid var(--border);}
-.video-slot{position:relative;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);min-height:220px;}
-.video-slot:last-child{border-right:none;}
-.video-slot video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.video-label{position:absolute;bottom:8px;left:10px;font-size:10px;font-family:var(--font-m);color:rgba(255,255,255,.45);background:rgba(0,0,0,.5);padding:2px 7px;border-radius:4px;}
-.face-overlay{position:absolute;top:8px;right:8px;font-size:10px;font-family:var(--font-m);padding:3px 8px;border-radius:999px;transition:all .4s;}
-.face-neutral{background:var(--teal-d);color:var(--teal);}
-.face-smile{background:var(--amber-d);color:var(--amber);}
-.face-stress{background:var(--red-d);color:var(--red);}
-.no-cam{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text3);font-size:12px;}
-.no-cam-icon{font-size:28px;opacity:.4;}
-.rec-pulse{position:absolute;top:10px;left:10px;width:9px;height:9px;border-radius:50%;background:var(--red);display:none;}
-.rec-pulse.active{display:block;animation:pulse .9s infinite;}
+/* SESSION */
+.sess-layout{display:grid;grid-template-columns:1fr 290px;}
+.videos{display:grid;grid-template-columns:1fr;background:#050810;border-right:1px solid var(--border);}
+.vslot{position:relative;display:flex;align-items:center;justify-content:center;min-height:260px;}
+.vslot video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.vlabel{position:absolute;bottom:7px;left:9px;font-size:10px;font-family:var(--font-m);color:rgba(255,255,255,.4);background:rgba(0,0,0,.5);padding:2px 6px;border-radius:3px;}
+.face-ov{position:absolute;top:7px;right:7px;font-size:10px;font-family:var(--font-m);padding:3px 8px;border-radius:999px;transition:all .4s;}
+.fn{background:var(--td);color:var(--teal);}
+.fs{background:var(--ad);color:var(--amber);}
+.fst{background:var(--rd);color:var(--red);}
+.nocam{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-size:12px;}
+.rp{position:absolute;top:9px;left:9px;width:8px;height:8px;border-radius:50%;background:var(--red);display:none;}
+.rp.on{display:block;animation:p .9s infinite;}
 
 /* CONTROLS */
-.controls{padding:1.25rem;display:flex;flex-direction:column;gap:10px;}
-.btn-rec{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#051a0f;border:none;border-radius:var(--r-s);padding:11px;font-size:13px;font-weight:600;font-family:var(--font-b);cursor:pointer;transition:opacity .2s,background .2s;width:100%;}
+.ctrls{padding:1.125rem;display:flex;flex-direction:column;gap:9px;overflow-y:auto;max-height:460px;}
+.btn-rec{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--teal);color:#051a0f;border:none;border-radius:var(--rs);padding:10px;font-size:13px;font-weight:700;font-family:var(--font-b);cursor:pointer;width:100%;transition:opacity .2s,background .2s;}
 .btn-rec:hover{opacity:.85;}
-.btn-rec.is-rec{background:var(--red);color:#fff;}
-.btn-sec{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:var(--r-s);padding:8px 12px;font-size:12px;font-family:var(--font-b);cursor:pointer;transition:border-color .2s,color .2s;width:100%;}
-.btn-sec:hover{border-color:var(--text2);color:var(--text);}
-.btn-sec:disabled{opacity:.35;cursor:not-allowed;}
-.timer{font-family:var(--font-m);font-size:26px;font-weight:500;color:var(--text2);text-align:center;letter-spacing:.05em;padding:4px 0;}
-.timer.is-rec{color:var(--red);}
-
-/* VOICE METER */
-.voice-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-s);padding:10px 12px;}
-.voice-label{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
-.voice-bars{display:flex;align-items:flex-end;gap:3px;height:32px;}
-.vbar{width:5px;border-radius:2px;background:var(--teal);transition:height .1s;min-height:3px;}
-.fluency-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;font-family:var(--font-m);}
-.fluency-score{color:var(--teal);}
-.fluency-label{color:var(--text3);}
-
-/* QUESTION BOX */
-.q-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-s);padding:10px 12px;}
-.q-label{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
-.q-num{font-size:10px;font-family:var(--font-m);color:var(--purple);margin-bottom:4px;}
-.q-text{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:8px;}
-.q-hint{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:8px;line-height:1.4;}
-.btn-next{background:none;border:none;color:var(--teal);font-size:11px;font-family:var(--font-b);cursor:pointer;padding:0;}
+.btn-rec.on{background:var(--red);color:#fff;}
+.bsec{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:var(--rs);padding:7px 10px;font-size:12px;font-family:var(--font-b);cursor:pointer;transition:border-color .2s,color .2s;width:100%;}
+.bsec:hover{border-color:var(--text2);color:var(--text);}
+.timer{font-family:var(--font-m);font-size:24px;font-weight:500;color:var(--text2);text-align:center;letter-spacing:.05em;}
+.timer.on{color:var(--red);}
+.vbox{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 11px;}
+.vlbl{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;}
+.vbars{display:flex;align-items:flex-end;gap:2px;height:28px;}
+.vb{width:4px;border-radius:2px;background:var(--teal);min-height:3px;transition:height .1s;}
+.frow{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;font-family:var(--font-m);}
+.fscore{color:var(--teal);}
+.flbl{color:var(--text3);}
+.qbox{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 11px;}
+.qlbl{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.qnum{font-size:10px;font-family:var(--font-m);color:var(--purple);margin-bottom:3px;}
+.qtext{font-size:13px;color:var(--text);line-height:1.4;margin-bottom:6px;}
+.qhint{font-size:11px;color:var(--text3);font-style:italic;line-height:1.4;margin-bottom:6px;}
+.bnext{background:none;border:none;color:var(--teal);font-size:11px;font-family:var(--font-b);cursor:pointer;padding:0;}
 
 /* METRICS */
-.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);}
-.metric{background:var(--bg2);padding:.875rem 1rem;}
-.metric-label{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
-.metric-val{font-family:var(--font-d);font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;}
-.metric-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.mfill{height:100%;border-radius:2px;transition:width 1s ease;width:0%;}
-.mfill-teal{background:var(--teal);}
-.mfill-amber{background:var(--amber);}
-.mfill-coral{background:var(--coral);}
-.mfill-blue{background:var(--blue);}
+.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);}
+.met{background:var(--bg2);padding:.75rem 1rem;}
+.mlbl{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.mval{font-family:var(--font-d);font-size:20px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.mbar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.mf{height:100%;border-radius:2px;transition:width 1s ease;width:0%;}
+.mf-t{background:var(--teal);}
+.mf-b{background:var(--blue);}
+.mf-a{background:var(--amber);}
+.mf-c{background:var(--coral);}
+
+/* LIVE PARAPHRASE */
+.para-box{background:var(--pd);border:1px solid rgba(155,127,255,.2);border-radius:var(--rs);padding:10px 12px;margin-top:2px;}
+.para-lbl{font-size:10px;font-family:var(--font-m);color:var(--purple);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.para-text{font-size:12px;color:var(--text2);line-height:1.6;font-style:italic;min-height:36px;}
+.para-loader{font-size:11px;color:var(--text3);font-family:var(--font-m);animation:p 1s infinite;}
 
 /* RECORDINGS */
-.rec-list{display:flex;flex-direction:column;}
-.rec-item{display:flex;align-items:center;gap:12px;padding:.875rem 1.25rem;border-bottom:1px solid var(--border);transition:background .15s;}
-.rec-item:last-child{border-bottom:none;}
-.rec-item:hover{background:rgba(255,255,255,.02);}
-.rec-thumb{width:42px;height:42px;border-radius:var(--r-s);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:16px;flex-shrink:0;cursor:pointer;transition:background .15s;}
-.rec-thumb:hover{background:var(--teal-d);}
-.rec-info{flex:1;}
-.rec-name{font-size:13px;font-weight:500;margin-bottom:2px;}
-.rec-meta{font-size:11px;font-family:var(--font-m);color:var(--text3);}
-.rec-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.rlist{display:flex;flex-direction:column;}
+.ri{display:flex;align-items:center;gap:11px;padding:.8rem 1.25rem;border-bottom:1px solid var(--border);transition:background .15s;}
+.ri:last-child{border-bottom:none;}
+.ri:hover{background:rgba(255,255,255,.02);}
+.rthumb{width:40px;height:40px;border-radius:var(--rs);background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:14px;flex-shrink:0;cursor:pointer;transition:background .15s;}
+.rthumb:hover{background:var(--td);}
+.rinfo{flex:1;}
+.rname{font-size:13px;font-weight:500;margin-bottom:2px;}
+.rmeta{font-size:11px;font-family:var(--font-m);color:var(--text3);}
+.rtags{display:flex;gap:4px;flex-wrap:wrap;}
 .rtag{font-size:10px;font-family:var(--font-m);padding:2px 7px;border-radius:999px;}
-.rt-teal{background:var(--teal-d);color:var(--teal);}
-.rt-amber{background:var(--amber-d);color:var(--amber);}
-.rt-coral{background:var(--coral-d);color:var(--coral);}
-.rt-red{background:var(--red-d);color:var(--red);}
-.rec-actions{display:flex;gap:6px;}
-.btn-play{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--r-s);padding:5px 12px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:border-color .2s,color .2s;}
-.btn-play:hover{border-color:var(--teal);color:var(--teal);}
-.btn-del{background:none;border:1px solid var(--border2);color:var(--text3);border-radius:var(--r-s);padding:5px 10px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:border-color .2s,color .2s;}
-.btn-del:hover{border-color:var(--red);color:var(--red);}
-.empty-state{padding:2.5rem;text-align:center;color:var(--text3);font-size:13px;}
+.rt-t{background:var(--td);color:var(--teal);}
+.rt-a{background:var(--ad);color:var(--amber);}
+.rt-c{background:var(--cd);color:var(--coral);}
+.racts{display:flex;gap:5px;}
+.bplay{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--rs);padding:4px 11px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:border-color .2s,color .2s;}
+.bplay:hover{border-color:var(--teal);color:var(--teal);}
+.brename{background:none;border:none;color:var(--text3);border-radius:var(--rs);padding:4px 7px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:color .2s;}
+.brename:hover{color:var(--purple);}
+.rename-input{background:var(--bg3);border:1px solid var(--purple);color:var(--text);border-radius:4px;padding:2px 8px;font-size:13px;font-family:var(--font-b);width:200px;outline:none;}
+.bdel{background:none;border:1px solid var(--border2);color:var(--text3);border-radius:var(--rs);padding:4px 9px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:border-color .2s,color .2s;}
+.bdel:hover{border-color:var(--red);color:var(--red);}
+.empty{padding:2.5rem;text-align:center;color:var(--text3);font-size:13px;}
 
-/* PLAYBACK PANEL */
-.playback-panel{display:none;}
-.playback-panel.open{display:block;}
+/* REVIEW PANEL */
+.review{display:none;}
+.review.open{display:block;}
 .pb-inner{padding:1.25rem;}
-.pb-player{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;}
-.pb-title{font-size:14px;font-weight:500;margin-bottom:.75rem;}
-.pb-waveform{height:48px;background:var(--bg);border-radius:var(--r-s);margin-bottom:.75rem;display:flex;align-items:center;padding:0 12px;gap:2px;cursor:pointer;overflow:hidden;}
-.pb-bar{width:3px;border-radius:1px;background:var(--teal);opacity:.5;transition:opacity .2s;}
-.pb-bar.played{opacity:1;}
-.pb-controls{display:flex;align-items:center;gap:10px;}
-.btn-pbplay{background:var(--teal);color:#051a0f;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;}
-.pb-time{font-family:var(--font-m);font-size:11px;color:var(--text3);flex:1;}
+.pb-video-wrap{background:#000;border-radius:var(--rs);overflow:hidden;margin-bottom:1rem;position:relative;aspect-ratio:16/9;max-height:300px;}
+.pb-video-wrap video{width:100%;height:100%;object-fit:contain;}
+.pb-no-video{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:13px;font-family:var(--font-m);}
+.pb-controls{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;}
+.btn-pbp{background:var(--teal);color:#051a0f;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
+.pbbar{flex:1;height:4px;background:var(--bg3);border-radius:2px;cursor:pointer;overflow:hidden;}
+.pbprog{height:100%;background:var(--teal);border-radius:2px;width:0%;transition:width .3s linear;}
+.pbtime{font-family:var(--font-m);font-size:11px;color:var(--text3);white-space:nowrap;}
 .pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.pb-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-s);padding:1rem;}
-.pb-card-title{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem;}
-.score-big{font-family:var(--font-d);font-size:40px;font-weight:800;margin-bottom:4px;}
-.score-big.green{color:var(--teal);}
-.score-big.amber{color:var(--amber);}
-.score-big.red{color:var(--coral);}
-.breakdown-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);}
-.breakdown-row:last-child{border-bottom:none;}
-.bval{font-family:var(--font-m);font-size:11px;}
-.bval.g{color:var(--teal);}.bval.w{color:var(--amber);}.bval.b{color:var(--coral);}
-.transcript-box{grid-column:1/-1;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-s);padding:1rem;}
-.transcript-text{font-size:13px;color:var(--text2);line-height:1.8;font-style:italic;}
-.ai-feedback{grid-column:1/-1;background:var(--purple-d);border:1px solid rgba(139,111,255,.2);border-radius:var(--r-s);padding:1rem;}
-.ai-feedback p{font-size:13px;color:var(--text2);line-height:1.7;}
-.ai-feedback strong{color:var(--text);}
+.pb-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:1rem;}
+.pct{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem;}
+.score-big{font-family:var(--font-d);font-size:38px;font-weight:800;margin-bottom:3px;}
+.sg{color:var(--teal);}.sa{color:var(--amber);}.sr2{color:var(--coral);}
+.bkrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);}
+.bkrow:last-child{border-bottom:none;}
+.bv{font-family:var(--font-m);font-size:11px;}
+.bg{color:var(--teal);}.bw{color:var(--amber);}.bb{color:var(--coral);}
+
+/* TIMELINE */
+.timeline-wrap{grid-column:1/-1;}
+.timeline-title{font-size:11px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem;}
+.tl-bars{display:flex;flex-direction:column;gap:8px;}
+.tl-row{display:flex;align-items:center;gap:10px;}
+.tl-label{font-size:11px;font-family:var(--font-m);color:var(--text2);width:90px;flex-shrink:0;text-align:right;}
+.tl-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;}
+.tl-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.tl-pct{font-size:11px;font-family:var(--font-m);color:var(--text3);width:35px;}
+.tl-tooltip{position:absolute;top:-28px;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:2px 8px;font-size:10px;font-family:var(--font-m);color:var(--text);white-space:nowrap;pointer-events:none;display:none;}
+.tl-track:hover .tl-tooltip{display:block;}
+
+/* PARAPHRASE REVIEW */
+.para-review{grid-column:1/-1;background:var(--pd);border:1px solid rgba(155,127,255,.2);border-radius:var(--rs);padding:1rem;}
+.para-orig{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:.75rem;}
+.para-improved{font-size:13px;color:var(--text);line-height:1.75;font-style:italic;border-left:2px solid var(--purple);padding-left:12px;}
+.para-loading{font-size:12px;color:var(--text3);font-family:var(--font-m);}
+
+/* TRANSCRIPT + FEEDBACK */
+.transcript-box,.feedback-box{grid-column:1/-1;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:1rem;}
+.ttext{font-size:13px;color:var(--text2);line-height:1.8;font-style:italic;}
+.ftext{font-size:13px;color:var(--text2);line-height:1.7;}
+.ftext strong{color:var(--text);}
+
+/* QUESTION BANK */
+.qbank{padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;}
+.qbcard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;transition:border-color .2s;}
+.qbcard:hover{border-color:var(--border2);}
+.qbq{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.qbh{font-size:11px;color:var(--text3);margin-bottom:5px;}
+.qbs{font-size:11px;font-family:var(--font-m);color:var(--purple);margin-bottom:8px;}
+.buseq{background:none;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;font-family:var(--font-b);transition:border-color .2s,color .2s;}
+.buseq:hover{border-color:var(--teal);color:var(--teal);}
+.cat-lbl{font-size:10px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:.5rem;margin-bottom:4px;}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-s);padding:10px 18px;font-size:13px;font-family:var(--font-m);color:var(--text);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:9px 16px;font-size:12px;font-family:var(--font-m);color:var(--text);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
-.toast.success{border-color:rgba(29,203,138,.3);color:var(--teal);}
-.toast.error{border-color:rgba(255,79,79,.3);color:var(--red);}
+.toast.ok{border-color:rgba(29,203,138,.3);color:var(--teal);}
+.toast.err{border-color:rgba(255,79,79,.3);color:var(--red);}
 
-.rec-name:hover .rename-hint{opacity:1 !important;}
-.rename-input{background:var(--bg3);border:1px solid var(--teal);border-radius:var(--r-s);padding:3px 8px;color:var(--text);font-size:13px;font-weight:500;font-family:var(--font-b);outline:none;width:100%;max-width:340px;}
-
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
-
-@media(max-width:900px){
-  .session-layout{grid-template-columns:1fr;}
-  .videos{grid-template-columns:1fr;}
-  .metrics-grid{grid-template-columns:1fr 1fr;}
-  body{flex-direction:column;}
-  .sidebar{width:100%;flex-direction:row;height:auto;}
-}
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo">Peer<span>Prep</span></div>
-  <div class="nav-section">Menu</div>
-  <div class="nav-link active" onclick="showPage('session')">
-    <span class="nav-icon">▶</span> Live Session
-  </div>
-  <div class="nav-link" onclick="showPage('recordings')">
-    <span class="nav-icon">◈</span> Recordings
-  </div>
-  <div class="nav-link" onclick="showPage('questions')">
-    <span class="nav-icon">?</span> Questions
-  </div>
-  <div class="sidebar-bottom">
-    <div class="status-row"><div class="dot dot-green"></div> Camera ready</div>
-    <div class="status-row"><div class="dot dot-amber" id="mic-dot"></div> <span id="mic-status">Mic checking...</span></div>
-    <div class="status-row"><div class="dot dot-green"></div> <span>Expression ready</span></div>
+  <div class="s-logo">Peer<span>Prep</span></div>
+  <div class="s-sec">Menu</div>
+  <div class="nl active" onclick="showPage('session')"><span class="ni">▶</span>Live Session</div>
+  <div class="nl" onclick="showPage('recordings')"><span class="ni">◈</span>Recordings</div>
+  <div class="nl" onclick="showPage('questions')"><span class="ni">?</span>Question Bank</div>
+  <a class="s-home" href="index.html">← Home</a>
+  <div class="s-bottom">
+    <div class="sr"><div class="dot dg"></div><span>Camera ready</span></div>
+    <div class="sr"><div class="dot da" id="mic-dot"></div><span id="mic-txt">Mic checking...</span></div>
+    <div class="sr"><div class="dot" id="face-dot" style="background:var(--text3)"></div><span id="face-txt">Face AI loading...</span></div>
   </div>
 </aside>
 
@@ -215,1015 +227,1419 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:
 <main class="main">
   <div class="topbar">
     <div>
-      <div class="page-title" id="page-title">Live Session</div>
-      <div class="page-sub" id="page-sub">Start recording your peer interview</div>
-    </div>
-    <div class="user-chip" onclick="openAccountModal()" title="Change account" style="cursor:pointer;">
-      <div class="av" id="user-av">JS</div>
-      <span id="user-name">Jamie S.</span>
-      <span style="font-size:10px;color:var(--text3);margin-left:2px;">✎</span>
-    </div>
-  </div>
-
-  <!-- ACCOUNT MODAL -->
-  <div id="account-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;">
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:1.75rem;width:320px;display:flex;flex-direction:column;gap:1rem;">
-      <div style="font-family:var(--font-d);font-size:16px;font-weight:700;">Change account</div>
-      <div>
-        <div style="font-size:11px;font-family:var(--font-m);color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">Display name</div>
-        <input id="account-input" type="text" placeholder="e.g. Jamie S."
-          style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-s);padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font-b);outline:none;"
-          onkeydown="if(event.key==='Enter') saveAccount()"
-        />
-      </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button onclick="closeAccountModal()" style="background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--r-s);padding:8px 16px;font-size:12px;cursor:pointer;font-family:var(--font-b);">Cancel</button>
-        <button onclick="saveAccount()" style="background:var(--teal);color:#051a0f;border:none;border-radius:var(--r-s);padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-b);">Save</button>
-      </div>
+      <div class="page-title" id="ptitle">Live Session</div>
+      <div class="page-sub" id="psub">Start recording your peer interview</div>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- ===== SESSION PAGE ===== -->
-    <div id="page-session">
-
-      <!-- Live session panel -->
+    <!-- SESSION PAGE -->
+    <div id="pg-session">
       <div class="panel">
-        <div class="panel-head">
-          <h2>Interview session</h2>
-          <span class="badge badge-ready" id="rec-badge">Ready</span>
-        </div>
-        <div style="padding:8px 1.25rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;font-family:var(--font-m);color:var(--text3);display:flex;align-items:center;gap:8px;">
-          <span>🔇</span> For best results, find a quiet place before recording — background noise affects your fluency and clarity scores.
-        </div>
-        <div class="session-layout">
+        <div class="ph"><h2>Interview session</h2><span class="badge b-ready" id="rec-badge">Ready</span></div>
+        <div class="sess-layout">
           <div class="videos">
-            <div class="video-slot">
+            <div class="vslot">
               <video id="local-video" autoplay muted playsinline></video>
-              <div class="no-cam" id="no-cam"><div class="no-cam-icon">◎</div><span>Camera off</span></div>
-              <div class="rec-pulse" id="rec-pulse"></div>
-              <div class="video-label">You</div>
-              <div class="face-overlay face-neutral" id="face-label">● Neutral</div>
+              <div class="nocam" id="no-cam"><span style="font-size:26px;opacity:.3;">◎</span><span>Camera off</span></div>
+              <div class="rp" id="rp"></div>
+              <div class="vlabel">You</div>
+              <div class="face-ov fn" id="face-lbl">● Neutral</div>
             </div>
-            <div class="video-slot">
-              <video id="remote-video" autoplay playsinline></video>
-              <div class="no-cam"><div class="no-cam-icon">◎</div><span>Waiting for peer</span></div>
-              <div class="video-label">Peer</div>
-            </div>
+
           </div>
-          <div class="controls">
-            <button class="btn-rec" id="btn-rec" onclick="toggleRecording()">
-              ● Start Recording
-            </button>
-            <button class="btn-sec" id="btn-cam" onclick="toggleCamera()">⊙ Toggle Camera</button>
-            <button class="btn-sec" id="btn-mic" onclick="toggleMic()">♪ Toggle Mic</button>
+          <div class="ctrls">
+            <button class="btn-rec" id="btn-rec" onclick="toggleRec()">● Start Recording</button>
+            <button class="bsec" onclick="toggleCam()">⊙ Toggle Camera</button>
+            <button class="bsec" onclick="toggleMic()">♪ Toggle Mic</button>
             <div class="timer" id="timer">00:00</div>
-
-            <!-- Voice meter -->
-            <div class="voice-box">
-              <div class="voice-label">Voice analysis</div>
-              <div class="voice-bars" id="voice-bars"></div>
-              <div class="fluency-row">
-                <span class="fluency-label">Fluency</span>
-                <span class="fluency-score" id="fluency-score">--</span>
-              </div>
+            <div class="vbox">
+              <div class="vlbl">Voice analysis</div>
+              <div class="vbars" id="vbars"></div>
+              <div class="frow"><span class="flbl">Fluency</span><span class="fscore" id="fluency-score">--</span></div>
             </div>
-
-            <!-- Question -->
-            <div class="q-box">
-              <div class="q-label">Current question</div>
-              <div class="q-num" id="q-num">Q1 / 10</div>
-              <div class="q-text" id="q-text">Tell me about yourself.</div>
-              <div class="q-hint" id="q-hint">Use the STAR method: Situation, Task, Action, Result.</div>
-              <button class="btn-next" onclick="nextQuestion()">Next question →</button>
+            <div class="qbox">
+              <div class="qlbl">Current question</div>
+              <div class="qnum" id="qnum">Q1 / 20</div>
+              <div class="qtext" id="qtext">Tell me about yourself.</div>
+              <div class="qhint" id="qhint">Keep it under 2 minutes. Cover education, experience, and why you're here.</div>
+              <button class="bnext" onclick="nextQ()">Next question →</button>
+            </div>
+            <!-- Live paraphrase box -->
+            <div class="para-box" id="live-para-box" style="display:none;">
+              <div class="para-lbl">AI Paraphrase — how to say it better</div>
+              <div class="para-text" id="live-para-text"></div>
             </div>
           </div>
         </div>
-
-        <!-- Metrics row -->
-        <div class="metrics-grid">
-          <div class="metric">
-            <div class="metric-label">Clarity</div>
-            <div class="metric-val" id="m-clarity">--</div>
-            <div class="metric-bar"><div class="mfill mfill-teal" id="b-clarity"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Fluency</div>
-            <div class="metric-val" id="m-fluency">--</div>
-            <div class="metric-bar"><div class="mfill mfill-blue" id="b-fluency"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Expression</div>
-            <div class="metric-val" id="m-expression">--</div>
-            <div class="metric-bar"><div class="mfill mfill-amber" id="b-expression"></div></div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Confidence</div>
-            <div class="metric-val" id="m-confidence">--</div>
-            <div class="metric-bar"><div class="mfill mfill-coral" id="b-confidence"></div></div>
-          </div>
+        <div class="mrow">
+          <div class="met"><div class="mlbl">Clarity</div><div class="mval" id="m-clarity">--</div><div class="mbar"><div class="mf mf-t" id="b-clarity"></div></div></div>
+          <div class="met"><div class="mlbl">Fluency</div><div class="mval" id="m-fluency">--</div><div class="mbar"><div class="mf mf-b" id="b-fluency"></div></div></div>
+          <div class="met"><div class="mlbl">Expression</div><div class="mval" id="m-expr">--</div><div class="mbar"><div class="mf mf-a" id="b-expr"></div></div></div>
+          <div class="met"><div class="mlbl">Confidence</div><div class="mval" id="m-conf">--</div><div class="mbar"><div class="mf mf-c" id="b-conf"></div></div></div>
         </div>
-      </div>
-
-    </div><!-- end session page -->
-
-    <!-- ===== RECORDINGS PAGE ===== -->
-    <div id="page-recordings" style="display:none;">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Saved recordings</h2>
-          <span style="font-size:11px;font-family:var(--font-m);color:var(--text3);" id="rec-count">0 sessions</span>
-        </div>
-        <div class="rec-list" id="rec-list">
-          <div class="empty-state" id="empty-state">
-            No recordings yet.<br>
-            <button onclick="showPage('session')" style="margin-top:.75rem;background:var(--teal);color:#051a0f;border:none;border-radius:999px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;">
-              Start a session →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Playback panel -->
-      <div class="panel playback-panel" id="playback-panel">
-        <div class="panel-head">
-          <h2 id="pb-session-title">Session review</h2>
-          <button class="btn-sec" style="width:auto;padding:5px 14px;" onclick="closePlayback()">✕ Close</button>
-        </div>
-        <div class="pb-inner">
-          <div class="pb-player">
-            <div class="pb-title" id="pb-title">Recording</div>
-            <div class="pb-waveform" id="pb-waveform" onclick="scrubPlayback(event)"></div>
-            <div class="pb-controls">
-              <button class="btn-pbplay" id="btn-pbplay" onclick="togglePlayback()">▶</button>
-              <span class="pb-time" id="pb-time">0:00 / 0:00</span>
-              <audio id="pb-audio" style="display:none;"></audio>
-            </div>
-          </div>
-          <div class="pb-grid">
-            <div class="pb-card">
-              <div class="pb-card-title">Overall score</div>
-              <div class="score-big green" id="pb-overall">--</div>
-              <div style="font-size:12px;color:var(--text3);" id="pb-grade">--</div>
-              <div id="pb-short-warning" style="display:none;margin-top:8px;font-size:11px;font-family:var(--font-m);color:var(--amber);background:var(--amber-d);border-radius:6px;padding:5px 8px;">⚠ Short session — scores may be low</div>
-              <div style="margin-top:12px;font-size:11px;font-family:var(--font-m);color:var(--text3);">
-                <div style="margin-bottom:3px;">Score weights</div>
-                <div style="color:var(--text2);">Clarity 30% · Fluency 25%</div>
-                <div style="color:var(--text2);">Expression 25% · Confidence 20%</div>
-              </div>
-            </div>
-            <div class="pb-card">
-              <div class="pb-card-title">Breakdown</div>
-              <div id="pb-breakdown"></div>
-            </div>
-            <div class="pb-card" style="grid-column:1/-1;background:var(--bg);border:1px solid var(--border);">
-              <div class="pb-card-title">Question answered</div>
-              <div id="pb-question" style="font-size:13px;color:var(--text2);line-height:1.6;margin-top:4px;font-style:italic;">--</div>
-            </div>
-            <div class="transcript-box">
-              <div class="pb-card-title">Transcript</div>
-              <div class="transcript-text" id="pb-transcript">--</div>
-            </div>
-            <div class="ai-feedback">
-              <div class="pb-card-title" style="color:var(--purple);">AI feedback</div>
-              <div id="pb-feedback"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div><!-- end recordings page -->
-
-    <!-- ===== QUESTIONS PAGE ===== -->
-    <div id="page-questions" style="display:none;">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>Interview question bank</h2>
-          <span style="font-size:11px;font-family:var(--font-m);color:var(--text3);">30 questions · 3 categories</span>
-        </div>
-        <div id="question-bank" style="padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;"></div>
       </div>
     </div>
 
-  </div><!-- end content -->
+    <!-- RECORDINGS PAGE -->
+    <div id="pg-recordings" style="display:none;">
+      <div class="panel">
+        <div class="ph"><h2>Saved recordings</h2><span style="font-size:11px;font-family:var(--font-m);color:var(--text3);" id="rec-count">0 sessions</span></div>
+        <div class="rlist" id="rlist">
+          <div class="empty" id="empty">No recordings yet. Go to Live Session and press Record.</div>
+        </div>
+      </div>
+      <!-- REVIEW PANEL -->
+      <div class="panel review" id="review-panel">
+        <div class="ph">
+          <h2 id="rv-title">Session review</h2>
+          <button class="bsec" style="width:auto;padding:5px 14px;" onclick="closeReview()">✕ Close</button>
+        </div>
+        <div class="pb-inner">
+          <!-- VIDEO PLAYBACK -->
+          <div class="pb-video-wrap">
+            <video id="pb-video" controls style="width:100%;height:100%;object-fit:contain;"></video>
+          </div>
+          <div class="pb-grid">
+            <!-- SCORES -->
+            <div class="pb-card">
+              <div class="pct">Overall score</div>
+              <div class="score-big sg" id="rv-overall">--</div>
+              <div style="font-size:12px;color:var(--text3);" id="rv-grade">--</div>
+            </div>
+            <div class="pb-card">
+              <div class="pct">Breakdown</div>
+              <div class="bkrow"><span>Grammar</span><span class="bv bg" id="rv-grammar">--</span></div>
+              <div class="bkrow"><span>Vocabulary</span><span class="bv bg" id="rv-vocab">--</span></div>
+              <div class="bkrow"><span>Professionalism</span><span class="bv bw" id="rv-professional">--</span></div>
+              <div class="bkrow"><span>Sentence quality</span><span class="bv bw" id="rv-sentences">--</span></div>
+              <div class="bkrow"><span>Fluency</span><span class="bv bg" id="rv-fluency">--</span></div>
+              <div class="bkrow"><span>Expression</span><span class="bv bw" id="rv-expr">--</span></div>
+              <div class="bkrow"><span>Filler words</span><span class="bv bw" id="rv-fillers">--</span></div>
+              <div class="bkrow"><span>Eye contact</span><span class="bv bg" id="rv-eye">--</span></div>
+            </div>
+            <!-- IMPROVEMENT TIMELINE -->
+            <div class="pb-card timeline-wrap">
+              <div class="pct">Improvement timeline — which parts need work</div>
+              <div class="tl-bars" id="tl-bars"></div>
+            </div>
+            <!-- PARAPHRASE -->
+            <div class="para-review">
+              <div class="pct" style="color:var(--purple);">AI paraphrase — how to say your answer better</div>
+              <div class="para-orig" id="rv-orig-text"></div>
+              <div class="para-improved" id="rv-para"></div>
+            </div>
+            <!-- TRANSCRIPT -->
+            <div class="transcript-box">
+              <div class="pct">Transcript — what you said</div>
+              <div class="ttext" id="rv-transcript">--</div>
+            </div>
+            <!-- FEEDBACK -->
+            <div class="feedback-box">
+              <div class="pct">AI feedback</div>
+              <div class="ftext" id="rv-feedback">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS PAGE -->
+    <div id="pg-questions" style="display:none;">
+      <div class="panel">
+        <div class="ph"><h2>Question bank</h2><span style="font-size:11px;font-family:var(--font-m);color:var(--text3);">20 questions · 3 categories</span></div>
+        <div class="qbank" id="qbank"></div>
+      </div>
+    </div>
+
+  </div>
 </main>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ===================== DATA =====================
-const QUESTIONS = [
-  { cat:"Behavioural", q:"Tell me about yourself and your background.", hint:"Keep it under 2 minutes. Cover education, experience, and why you're here.", script:"Start with your degree/background, mention 1-2 key projects, then connect to the role." },
-  { cat:"Behavioural", q:"Describe a time you worked under pressure.", hint:"Use STAR method: Situation, Task, Action, Result.", script:"Pick a real deadline story. Focus on what YOU did, not the team." },
-  { cat:"Behavioural", q:"What is your greatest strength?", hint:"Be specific — give a concrete example, not just an adjective.", script:"Name the strength → give one example → connect to this role." },
-  { cat:"Behavioural", q:"Tell me about a time you failed. What did you learn?", hint:"Don't pick something trivial. Show self-awareness and growth.", script:"Describe the failure honestly, then pivot hard to what changed after it." },
-  { cat:"Behavioural", q:"How do you handle disagreements with teammates?", hint:"Show that you can resolve conflict professionally.", script:"Give an example. Emphasise listening first, then finding common ground." },
-  { cat:"Behavioural", q:"Where do you see yourself in 5 years?", hint:"Be ambitious but realistic. Tie it back to this company.", script:"Show growth mindset. Mention skills you want to build here." },
-  { cat:"Behavioural", q:"Why do you want this role?", hint:"Do your research — mention something specific about the company.", script:"Company reason + role reason + your skills = perfect fit." },
-  { cat:"Behavioural", q:"Describe your ideal work environment.", hint:"Be honest but professional. Avoid criticising past employers.", script:"Focus on collaboration, feedback culture, and learning opportunities." },
-  { cat:"Technical", q:"Walk me through a recent project you built.", hint:"Cover the problem, your approach, the tech stack, and the outcome.", script:"Problem → decision you made → result you measured. Keep it concrete." },
-  { cat:"Technical", q:"How do you approach debugging a problem you've never seen before?", hint:"Show your systematic thinking process.", script:"Reproduce → isolate → hypothesise → test → fix. Give a real example." },
-  { cat:"Technical", q:"Explain a complex technical concept to a non-technical person.", hint:"Pick something you genuinely understand deeply.", script:"Use an analogy. Check for understanding. Adjust your language in real-time." },
-  { cat:"Technical", q:"How do you ensure your code is secure?", hint:"Relevant especially for the cybersecurity role in your team.", script:"Input validation → auth → encryption → dependency audits → testing." },
-  { cat:"Technical", q:"Describe how you would design a system from scratch.", hint:"Think aloud — interviewers want to see your reasoning process.", script:"Requirements → constraints → high-level design → components → trade-offs." },
-  { cat:"Technical", q:"What's the hardest technical problem you've solved?", hint:"Be specific. Numbers and impact make it memorable.", script:"Set the scene quickly, spend 70% of time on YOUR solution and reasoning." },
-  { cat:"Situational", q:"You discover a major bug in production 30 minutes before a demo. What do you do?", hint:"Show calm, prioritisation, and communication skills.", script:"Assess severity → communicate upward → hotfix or rollback → post-mortem." },
-  { cat:"Situational", q:"A teammate is consistently missing deadlines. How do you handle it?", hint:"Don't throw colleagues under the bus. Show empathy first.", script:"Private conversation first → understand root cause → escalate only if needed." },
-  { cat:"Situational", q:"You're given a task with unclear requirements. What do you do?", hint:"Show that you ask the right questions before diving in.", script:"Clarify assumptions → document them → confirm with stakeholder → then build." },
-  { cat:"Situational", q:"How would you prioritise when you have three urgent tasks at once?", hint:"Show a framework — impact vs effort, deadlines, dependencies.", script:"Assess impact → check deadlines → communicate constraints → deliver incrementally." },
-  { cat:"Situational", q:"What would you do if you disagreed with your manager's technical decision?", hint:"Show that you can advocate professionally without being difficult.", script:"Understand their reasoning first → present data → accept the final call gracefully." },
-  { cat:"Situational", q:"How would you onboard yourself to a new codebase quickly?", hint:"Show initiative and structured learning approach.", script:"README → architecture docs → run it locally → read tests → make a small change." },
+// ============= QUESTIONS =============
+const QS = [
+  {cat:"Behavioural",q:"Tell me about yourself and your background.",hint:"Keep it under 2 minutes. Cover education, experience, and why you're here.",script:"Start with your degree, mention 1-2 key projects, connect to the role."},
+  {cat:"Behavioural",q:"Describe a time you worked under pressure.",hint:"Use STAR: Situation, Task, Action, Result.",script:"Pick a real deadline story. Focus on what YOU did specifically."},
+  {cat:"Behavioural",q:"What is your greatest strength?",hint:"Be specific — give a concrete example.",script:"Name the strength → give one example → connect it to this role."},
+  {cat:"Behavioural",q:"Tell me about a time you failed. What did you learn?",hint:"Don't pick something trivial. Show self-awareness and growth.",script:"Describe the failure honestly, then pivot to what changed after it."},
+  {cat:"Behavioural",q:"How do you handle disagreements with teammates?",hint:"Show you can resolve conflict professionally.",script:"Give an example. Emphasise listening first, then finding common ground."},
+  {cat:"Behavioural",q:"Where do you see yourself in 5 years?",hint:"Be ambitious but realistic. Tie it back to this company.",script:"Show growth mindset. Mention skills you want to build here."},
+  {cat:"Behavioural",q:"Why do you want this role?",hint:"Mention something specific about the company.",script:"Company reason + role reason + your skills = perfect fit."},
+  {cat:"Behavioural",q:"Describe your ideal work environment.",hint:"Be honest but professional.",script:"Focus on collaboration, feedback culture, and learning opportunities."},
+  {cat:"Technical",q:"Walk me through a recent project you built.",hint:"Cover the problem, your approach, tech stack, and outcome.",script:"Problem → decision you made → result you measured. Keep it concrete."},
+  {cat:"Technical",q:"How do you approach debugging a problem you've never seen before?",hint:"Show your systematic thinking process.",script:"Reproduce → isolate → hypothesise → test → fix. Give a real example."},
+  {cat:"Technical",q:"Explain a complex technical concept to a non-technical person.",hint:"Pick something you genuinely understand deeply.",script:"Use an analogy. Check for understanding. Adjust your language in real-time."},
+  {cat:"Technical",q:"How do you ensure your code is secure?",hint:"Input validation, auth, encryption, dependency audits.",script:"Input validation → auth → encryption → dependency audits → testing."},
+  {cat:"Technical",q:"Describe how you would design a system from scratch.",hint:"Think aloud — interviewers want to see your reasoning.",script:"Requirements → constraints → high-level design → components → trade-offs."},
+  {cat:"Technical",q:"What's the hardest technical problem you've solved?",hint:"Be specific. Numbers and impact make it memorable.",script:"Set scene quickly, spend 70% on YOUR solution and reasoning."},
+  {cat:"Situational",q:"You discover a major bug in production 30 minutes before a demo. What do you do?",hint:"Show calm, prioritisation, and communication skills.",script:"Assess severity → communicate upward → hotfix or rollback → post-mortem."},
+  {cat:"Situational",q:"A teammate is consistently missing deadlines. How do you handle it?",hint:"Show empathy first.",script:"Private conversation first → understand root cause → escalate only if needed."},
+  {cat:"Situational",q:"You're given a task with unclear requirements. What do you do?",hint:"Show that you ask the right questions before diving in.",script:"Clarify assumptions → document them → confirm with stakeholder → then build."},
+  {cat:"Situational",q:"How would you prioritise when you have three urgent tasks at once?",hint:"Show a framework — impact vs effort, deadlines, dependencies.",script:"Assess impact → check deadlines → communicate constraints → deliver incrementally."},
+  {cat:"Situational",q:"What would you do if you disagreed with your manager's technical decision?",hint:"Show you can advocate professionally.",script:"Understand their reasoning → present data → accept the final call gracefully."},
+  {cat:"Situational",q:"How would you onboard yourself to a new codebase quickly?",hint:"Show initiative and a structured learning approach.",script:"README → architecture docs → run locally → read tests → make a small change."},
 ];
 
-// ===================== STATE =====================
-let recording = false;
-let mediaRecorder = null;
-let recordedChunks = [];
-let localStream = null;
-let camOn = true;
-let micOn = true;
-let qIndex = 0;
-let audioCtx = null;
-let analyser = null;
-let recordings = JSON.parse(localStorage.getItem('peerprep_recordings') || '[]');
-let currentPlaybackId = null;
-let pbPlaying = false;
+// ============= STATE =============
+let recording=false, mediaRecorder=null, recChunks=[], localStream=null;
+let timerInt=null, seconds=0, camOn=true, micOn=true, qIdx=0;
+let faceInt=null, voiceInt=null, audioCtx=null, analyser=null, metInt=null;
+let recordings=[], currentRevId=null, pbPlaying=false, pbInt=null;
+let liveM={clarity:0,fluency:0,expr:0,conf:0};
+let fillerCount=0, transcript='', paraQueue='', paraTimer=null;
+let recordedVideoBlob=null;
 
-// Central timer/interval registry — prevents leaks and makes cleanup easy
-const timers = { timer: null, metrics: null, face: null, voice: null, pb: null };
-let seconds = 0;
+// Load saved metadata
+try{ recordings=JSON.parse(localStorage.getItem('pp_recs')||'[]'); }catch(e){}
 
-// Live session metrics
-let liveMetrics = { clarity:0, fluency:0, expression:0, confidence:0 };
-let faceExpression = 'neutral';
-let fillerCount = 0;
-let transcript = '';
-
-// ===================== DOM HELPERS =====================
-const el   = id => document.getElementById(id);
-const setText  = (id, val) => { const e = el(id); if (e) e.textContent = val; };
-const setWidth = (id, pct) => { const e = el(id); if (e) e.style.width = pct + '%'; };
-const setClass = (id, cls) => { const e = el(id); if (e) e.className = cls; };
-
-/** Update a live metric display + bar in one call */
-function renderMetric(key, val) {
-  setText('m-' + key, val + '%');
-  setWidth('b-' + key, val);
-}
-
-// ===================== INIT =====================
-window.addEventListener('load', async () => {
-  // Restore saved account name
-  const savedName = localStorage.getItem('peerprep_account');
-  if (savedName) {
-    const initials = savedName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    setText('user-name', savedName);
-    setText('user-av', initials);
-  }
-  updateQuestion();
-  buildVoiceBars();
-  buildQuestionBank();
-  renderRecordings();
-  await startCamera();
+// ============= INIT =============
+window.addEventListener('load',async()=>{
+  buildVBars(); buildQBank(); renderRecs();
+  await startCam();
   await loadFaceAPI();
-  initAudioAnalyser();
+  initAudio();
 });
 
-// ===================== CAMERA =====================
-async function startCamera() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
-    el('local-video').srcObject = localStream;
-    el('no-cam').style.display = 'none';
-    el('mic-dot').style.background = 'var(--teal)';
-    setText('mic-status', 'Mic active');
-    el('btn-rec').disabled = false;
-    el('btn-rec').title = '';
-    toast('Camera and mic ready', 'success');
-  } catch(e) {
-    toast('Camera blocked — check browser permissions', 'error');
-    setText('mic-status', 'Mic blocked');
-    el('btn-rec').disabled = true;
-    el('btn-rec').title = 'Camera permission required to record';
+// ============= CAMERA =============
+async function startCam(){
+  try{
+    localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    document.getElementById('local-video').srcObject=localStream;
+    document.getElementById('no-cam').style.display='none';
+    document.getElementById('mic-dot').style.background='var(--teal)';
+    document.getElementById('mic-txt').textContent='Mic active';
+    toast('Camera and mic ready','ok');
+  }catch(e){
+    toast('Allow camera & mic in browser settings','err');
+    document.getElementById('mic-txt').textContent='Mic blocked';
+  }
+}
+function toggleCam(){
+  if(!localStream)return;
+  camOn=!camOn;
+  localStream.getVideoTracks().forEach(t=>t.enabled=camOn);
+  document.getElementById('no-cam').style.display=camOn?'none':'flex';
+  toast(camOn?'Camera on':'Camera off');
+}
+function toggleMic(){
+  if(!localStream)return;
+  micOn=!micOn;
+  localStream.getAudioTracks().forEach(t=>t.enabled=micOn);
+  document.getElementById('mic-dot').style.background=micOn?'var(--teal)':'var(--red)';
+  toast(micOn?'Mic on':'Mic muted');
+}
+
+// ============= FACE API =============
+async function loadFaceAPI(){
+  try{
+    const U='https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(U);
+    await faceapi.nets.faceExpressionNet.loadFromUri(U);
+    document.getElementById('face-dot').style.background='var(--teal)';
+    document.getElementById('face-txt').textContent='Face AI ready';
+    startFaceDetect();
+  }catch(e){
+    document.getElementById('face-txt').textContent='Face AI (simulated)';
+    startFaceSim();
+  }
+}
+function startFaceDetect(){
+  const v=document.getElementById('local-video');
+  faceInt=setInterval(async()=>{
+    if(!v.srcObject)return;
+    try{
+      const d=await faceapi.detectSingleFace(v,new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+      if(d) updateFace(d.expressions);
+    }catch(e){}
+  },900);
+}
+function startFaceSim(){
+  const opts=['neutral','happy','surprised','sad','angry'];
+  const w=[0.5,0.25,0.1,0.08,0.07];
+  faceInt=setInterval(()=>{
+    let r=Math.random(),acc=0;
+    for(let i=0;i<opts.length;i++){acc+=w[i];if(r<acc){const m={};m[opts[i]]=0.9;updateFace(m);break;}}
+  },2200);
+}
+function updateFace(expr){
+  const sorted=Object.entries(expr).sort((a,b)=>b[1]-a[1]);
+  const top=sorted[0][0],score=Math.round(sorted[0][1]*100);
+  const lbl=document.getElementById('face-lbl');
+  let nat=0,txt='',cls='';
+  if(top==='happy'||top==='surprised'){txt=`● Smiling (${score}%)`;cls='face-ov fs';nat=85+Math.floor(Math.random()*15);}
+  else if(['angry','disgusted','fearful'].includes(top)){txt=`● Stressed (${score}%)`;cls='face-ov fst';nat=30+Math.floor(Math.random()*25);}
+  else if(top==='sad'){txt=`● Uneasy (${score}%)`;cls='face-ov fst';nat=45+Math.floor(Math.random()*20);}
+  else{txt=`● Neutral (${score}%)`;cls='face-ov fn';nat=70+Math.floor(Math.random()*20);}
+  lbl.textContent=txt;lbl.className=cls;
+  if(recording){
+    liveM.expr=Math.round(liveM.expr*.7+nat*.3);
+    document.getElementById('m-expr').textContent=liveM.expr+'%';
+    document.getElementById('b-expr').style.width=liveM.expr+'%';
   }
 }
 
-function toggleCamera() {
-  if (!localStream) return;
-  camOn = !camOn;
-  localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-  el('no-cam').style.display = camOn ? 'none' : 'flex';
-  el('btn-cam').textContent = camOn ? '⊙ Toggle Camera' : '⊙ Camera Off';
-  toast(camOn ? 'Camera on' : 'Camera off');
+// ============= VOICE =============
+function buildVBars(){
+  const c=document.getElementById('vbars');
+  for(let i=0;i<20;i++){const b=document.createElement('div');b.className='vb';b.style.height='4px';c.appendChild(b);}
 }
-
-function toggleMic() {
-  if (!localStream) return;
-  micOn = !micOn;
-  localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-  el('btn-mic').textContent = micOn ? '♪ Toggle Mic' : '♪ Mic Muted';
-  el('mic-dot').style.background = micOn ? 'var(--teal)' : 'var(--red)';
-  toast(micOn ? 'Mic on' : 'Mic muted');
-}
-
-// ===================== FACE API =====================
-async function loadFaceAPI() {
-  // face-api.js script is not loaded — go straight to simulation
-  if (typeof faceapi === 'undefined') {
-    startFaceSimulation();
-    return;
-  }
-  try {
-    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-    startFaceDetection();
-  } catch(e) {
-    startFaceSimulation();
-  }
-}
-
-function startFaceDetection() {
-  const video = el('local-video');
-  timers.face = setInterval(async () => {
-    if (!video.srcObject) return;
-    try {
-      const det = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
-      if (det) updateFaceExpression(det.expressions);
-    } catch(e) {}
-  }, 800);
-}
-
-function startFaceSimulation() {
-  const states = ['neutral','happy','surprised','sad','angry'];
-  const weights = [0.5, 0.25, 0.1, 0.08, 0.07];
-  timers.face = setInterval(() => {
-    const rand = Math.random();
-    let acc = 0;
-    for (let i = 0; i < states.length; i++) {
-      acc += weights[i];
-      if (rand < acc) { simulateFace(states[i]); break; }
-    }
-  }, 2000);
-}
-
-function simulateFace(expr) {
-  const mock = {};
-  mock[expr] = 0.9;
-  updateFaceExpression(mock);
-}
-
-function updateFaceExpression(expressions) {
-  const sorted = Object.entries(expressions).sort((a,b) => b[1]-a[1]);
-  const top = sorted[0][0];
-  const score = Math.round(sorted[0][1] * 100);
-  const label = el('face-label');
-
-  let naturalScore = 0;
-  let display = '';
-  let cls = '';
-
-  if (top === 'happy' || top === 'surprised') {
-    display = `● Smiling (${score}%)`;
-    cls = 'face-smile';
-    naturalScore = 85 + Math.floor(Math.random()*15);
-    faceExpression = 'smile';
-  } else if (top === 'angry' || top === 'disgusted' || top === 'fearful') {
-    display = `● Stressed (${score}%)`;
-    cls = 'face-stress';
-    naturalScore = 30 + Math.floor(Math.random()*25);
-    faceExpression = 'stress';
-  } else if (top === 'sad') {
-    display = `● Uneasy (${score}%)`;
-    cls = 'face-stress';
-    naturalScore = 45 + Math.floor(Math.random()*20);
-    faceExpression = 'stress';
-  } else {
-    display = `● Neutral (${score}%)`;
-    cls = 'face-neutral';
-    naturalScore = 70 + Math.floor(Math.random()*20);
-    faceExpression = 'neutral';
-  }
-
-  label.textContent = display;
-  label.className = 'face-overlay ' + cls;
-  if (recording) {
-    liveMetrics.expression = Math.round((liveMetrics.expression * 0.7) + (naturalScore * 0.3));
-    renderMetric('expression', liveMetrics.expression);
-  }
-}
-
-// ===================== VOICE ANALYSIS =====================
-function buildVoiceBars() {
-  const container = el('voice-bars');
-  for (let i = 0; i < 20; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'vbar';
-    bar.style.height = '4px';
-    container.appendChild(bar);
-  }
-}
-
-function initAudioAnalyser() {
-  if (!localStream) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const src = audioCtx.createMediaStreamSource(localStream);
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64;
+function initAudio(){
+  if(!localStream)return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(localStream);
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=64;
     src.connect(analyser);
-    startVoiceVisualiser();
-  } catch(e) {}
+    startVoiceVis();
+  }catch(e){}
 }
-
-function startVoiceVisualiser() {
-  const bars = document.querySelectorAll('.vbar');
-  const data = new Uint8Array(analyser ? analyser.frequencyBinCount : 20);
-  let silenceCount = 0;
-  let speakCount = 0;
-  let totalCount = 0;
-
-  timers.voice = setInterval(() => {
-    if (analyser) analyser.getByteFrequencyData(data);
-    bars.forEach((bar, i) => {
-      const val = analyser ? data[i] : (Math.random() * 40);
-      const h = Math.max(3, Math.min(32, val * 0.13));
-      bar.style.height = h + 'px';
-      bar.style.background = h > 16 ? 'var(--teal)' : h > 8 ? 'var(--blue)' : 'var(--text3)';
+function startVoiceVis(){
+  const bars=document.querySelectorAll('.vb');
+  const data=new Uint8Array(analyser?analyser.frequencyBinCount:20);
+  let spkFrames=0,silFrames=0,tot=0;
+  voiceInt=setInterval(()=>{
+    if(analyser) analyser.getByteFrequencyData(data);
+    // Without a real analyser, bars stay flat (no fake random animation)
+    const avg=analyser?Array.from(data).reduce((a,x)=>a+x,0)/data.length:0;
+    bars.forEach((b,i)=>{
+      const v=analyser?data[i]:0;
+      const h=Math.max(3,Math.min(26,v*.12));
+      b.style.height=h+'px';
+      b.style.background=h>14?'var(--teal)':h>8?'var(--blue)':'var(--text3)';
     });
+    tot++;
+    // Threshold 15 = actual speech vs background noise/silence
+    if(avg>15) spkFrames++;
+    else silFrames++;
 
-    const avg = analyser ? Array.from(data).reduce((a,b)=>a+b,0)/data.length : 15;
-    totalCount++;
-    if (avg > 10) speakCount++;
-    else silenceCount++;
-
-    if (totalCount > 10) {
-      const ratio = speakCount / totalCount;
-      let fluencyPct;
-      if (ratio < 0.3) fluencyPct = Math.round(ratio * 100 + 20);
-      else if (ratio > 0.95) fluencyPct = 60;
-      else fluencyPct = Math.round(60 + (ratio * 40));
-
-      setText('fluency-score', fluencyPct + '%');
-      if (recording) {
-        liveMetrics.fluency = Math.round((liveMetrics.fluency * 0.8) + (fluencyPct * 0.2));
-        renderMetric('fluency', liveMetrics.fluency);
-      }
-    }
-  }, 120);
-}
-
-// ===================== RECORDING =====================
-function toggleRecording() {
-  if (!recording) startRecording();
-  else stopRecording();
-}
-
-function startRecording() {
-  if (!localStream) { toast('Camera not available', 'error'); return; }
-
-  recordedChunks = [];
-  liveMetrics = { clarity:0, fluency:0, expression:0, confidence:0 };
-  fillerCount = 0;
-  transcript = '';
-  seconds = 0;
-
-  const options = { mimeType: 'video/webm;codecs=vp9,opus' };
-  try {
-    mediaRecorder = new MediaRecorder(localStream, options);
-  } catch(e) {
-    mediaRecorder = new MediaRecorder(localStream);
-  }
-
-  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-  mediaRecorder.onstop = finaliseRecording;
-  mediaRecorder.start(1000);
-
-  recording = true;
-
-  // UI — recording state
-  el('btn-rec').textContent = '■ Stop Recording';
-  el('btn-rec').classList.add('is-rec');
-  el('rec-badge').className = 'badge badge-rec';
-  setText('rec-badge', '● REC');
-  el('rec-pulse').classList.add('active');
-  el('timer').classList.add('is-rec');
-
-  // Timer with countdown warning in the last 30 seconds
-  const MAX = 300;
-  timers.timer = setInterval(() => {
-    seconds++;
-    const remaining = MAX - seconds;
-    const m = String(Math.floor(seconds/60)).padStart(2,'0');
-    const s = String(seconds%60).padStart(2,'0');
-    setText('timer', `${m}:${s}`);
-
-    if (remaining === 30) toast('30 seconds remaining — recording will auto-save', 'error');
-    if (seconds >= MAX) stopRecording();
-  }, 1000);
-
-  timers.metrics = setInterval(updateLiveMetrics, 1500);
-  startSpeechRecognition();
-  toast('Recording started', 'success');
-}
-
-function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-
-  recording = false;
-  clearInterval(timers.timer);
-  clearInterval(timers.metrics);
-
-  el('btn-rec').textContent = '● Start Recording';
-  el('btn-rec').classList.remove('is-rec');
-  el('rec-badge').className = 'badge badge-done';
-  setText('rec-badge', 'Saved');
-  el('rec-pulse').classList.remove('active');
-  el('timer').classList.remove('is-rec');
-  setText('timer', '00:00');
-
-  if (recognition) { try { recognition.stop(); } catch(e) {} }
-  toast('Recording saved!', 'success');
-}
-
-function finaliseRecording() {
-  const blob = new Blob(recordedChunks, { type:'video/webm' });
-  const url  = URL.createObjectURL(blob);
-  const duration = seconds;
-
-  // Use actual accumulated metrics — 0 is a valid score (silent/short session).
-  // Only use random fallback if the camera was blocked and stream never started.
-  const cameraWasBlocked = !localStream;
-  const clarity    = cameraWasBlocked ? Math.round(55 + Math.random()*30) : liveMetrics.clarity;
-  const fluency    = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.fluency;
-  const expression = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.expression;
-  const confidence = cameraWasBlocked ? Math.round(50 + Math.random()*35) : liveMetrics.confidence;
-  // Eye contact tracks with fluency — can't be high if nothing was said
-  const eyeContact = cameraWasBlocked
-    ? Math.round(60 + Math.random()*30)
-    : Math.min(99, Math.round(fluency * 0.9 + Math.random()*10));
-
-  // Weighted overall: clarity 30%, fluency 25%, expression 25%, confidence 20%
-  const weighted = Math.round(clarity*0.30 + fluency*0.25 + expression*0.25 + confidence*0.20);
-
-  // Filler penalty: each filler over 3 costs 1 point, capped at -10
-  const fillerPenalty = Math.min(10, Math.max(0, fillerCount - 3));
-  const overall = Math.max(0, weighted - fillerPenalty);
-
-  const rec = {
-    id: Date.now(),
-    name: `Interview session — ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`,
-    date: new Date().toLocaleDateString(),
-    duration: `${String(Math.floor(duration/60)).padStart(2,'0')}:${String(duration%60).padStart(2,'0')}`,
-    shortSession: duration < 30,
-    url,
-    scores: { overall, clarity, fluency, expression, confidence, fillers: fillerCount, eyeContact },
-    transcript: transcript || 'No transcript available — speech recognition may not be supported in this browser.',
-    question: QUESTIONS[qIndex].q,
-  };
-
-  recordings.unshift(rec);
-  saveRecordings();
-  renderRecordings();
-}
-
-function updateLiveMetrics() {
-  if (!recording) return;
-
-  // Only increment clarity/confidence if the mic is actually picking up sound.
-  // Use the analyser average as a speech proxy — if silent, scores don't rise.
-  let speechLevel = 0;
-  if (analyser) {
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(data);
-    speechLevel = data.reduce((a, b) => a + b, 0) / data.length;
-  }
-
-  // Require meaningful audio (threshold ~8) before crediting clarity/confidence
-  if (speechLevel > 8) {
-    liveMetrics.clarity    = Math.min(99, liveMetrics.clarity    + Math.floor(Math.random()*4) + 1);
-    liveMetrics.confidence = Math.min(99, liveMetrics.confidence + Math.floor(Math.random()*3) + 1);
-  }
-
-  renderMetric('clarity',    liveMetrics.clarity);
-  renderMetric('confidence', liveMetrics.confidence);
-}
-
-// ===================== SPEECH RECOGNITION =====================
-let recognition = null;
-function startSpeechRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return;
-  recognition = new SR();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
-
-  const FILLERS = ['um','uh','like','you know','basically','literally','actually','right','so','well'];
-
-  recognition.onresult = e => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) {
-        transcript += t + ' ';
-        // Count fillers
-        FILLERS.forEach(f => {
-          const regex = new RegExp('\\b'+f+'\\b','gi');
-          const matches = t.match(regex);
-          if (matches) fillerCount += matches.length;
-        });
+    if(tot>20&&recording){
+      const speakRatio=spkFrames/tot;
+      let fl=0;
+      if(speakRatio<0.05){
+        // Essentially silent — 0
+        fl=0;
+      } else if(speakRatio<0.15){
+        // Very little speech — very low
+        fl=Math.round(speakRatio*80);
+      } else if(speakRatio>0.95){
+        // No pauses at all — rambling, also penalised
+        fl=50;
       } else {
-        interim = t;
+        // Sweet spot 0.3–0.8 speaking ratio = natural conversation pacing
+        fl=Math.round(Math.min(95, speakRatio*100 + (speakRatio>0.3?20:0)));
       }
+      // Also cross-check transcript word count — no words = 0 no matter what audio says
+      const wc=transcript.trim().split(/\s+/).filter(w=>w.length>1).length;
+      if(wc<3) fl=0;
+
+      document.getElementById('fluency-score').textContent=fl+'%';
+      liveM.fluency=Math.round(liveM.fluency*.75+fl*.25);
+      document.getElementById('m-fluency').textContent=liveM.fluency+'%';
+      document.getElementById('b-fluency').style.width=liveM.fluency+'%';
+    } else if(!recording){
+      // Not recording — just show live mic level, no score
+      document.getElementById('fluency-score').textContent='--';
+    }
+  },120);
+}
+
+// ============= RECORDING =============
+function toggleRec(){recording?stopRec():startRec();}
+
+function startRec(){
+  if(!localStream){toast('Camera not available','err');return;}
+  recChunks=[];recordedVideoBlob=null;
+  liveM={clarity:0,fluency:0,expr:0,conf:0};
+  fillerCount=0;transcript='';paraQueue='';
+
+  const opts=['video/webm;codecs=vp9,opus','video/webm','video/mp4'];
+  let mm=null;
+  for(const o of opts){try{mm=new MediaRecorder(localStream,{mimeType:o});break;}catch(e){}}
+  if(!mm)mm=new MediaRecorder(localStream);
+  mediaRecorder=mm;
+
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+  mediaRecorder.onstop=finaliseRec;
+  mediaRecorder.start(500);
+
+  recording=true;seconds=0;
+  // Reset all live displays to 0 — nothing earned until you actually speak
+  document.getElementById('fluency-score').textContent='0%';
+  document.getElementById('m-fluency').textContent='0%';
+  document.getElementById('b-fluency').style.width='0%';
+  document.getElementById('m-clarity').textContent='0%';
+  document.getElementById('b-clarity').style.width='0%';
+  document.getElementById('m-conf').textContent='0%';
+  document.getElementById('b-conf').style.width='0%';
+  document.getElementById('m-expr').textContent='0%';
+  document.getElementById('b-expr').style.width='0%';
+  document.getElementById('btn-rec').textContent='■ Stop Recording';
+  document.getElementById('btn-rec').classList.add('on');
+  document.getElementById('rec-badge').className='badge b-rec';
+  document.getElementById('rec-badge').textContent='● REC';
+  document.getElementById('rp').classList.add('on');
+  document.getElementById('timer').classList.add('on');
+  document.getElementById('live-para-box').style.display='block';
+
+  timerInt=setInterval(()=>{
+    seconds++;
+    const m=String(Math.floor(seconds/60)).padStart(2,'0');
+    const s=String(seconds%60).padStart(2,'0');
+    document.getElementById('timer').textContent=`${m}:${s}`;
+  },1000);
+
+  metInt=setInterval(updateLiveM,1500);
+  startSpeech();
+  toast('Recording started','ok');
+}
+
+function stopRec(){
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+  recording=false;
+  clearInterval(timerInt);clearInterval(metInt);
+  if(window._speech){try{window._speech.stop();}catch(e){}}
+  document.getElementById('btn-rec').textContent='● Start Recording';
+  document.getElementById('btn-rec').classList.remove('on');
+  document.getElementById('rec-badge').className='badge b-done';
+  document.getElementById('rec-badge').textContent='Saved';
+  document.getElementById('rp').classList.remove('on');
+  document.getElementById('timer').classList.remove('on');
+  toast('Recording saved!','ok');
+}
+
+function finaliseRec(){
+  const type=mediaRecorder.mimeType||'video/webm';
+  recordedVideoBlob=new Blob(recChunks,{type});
+  const url=URL.createObjectURL(recordedVideoBlob);
+  const dur=seconds;
+
+  // Run full analysis on transcript
+  const analysis = analyseTranscript(transcript);
+
+  // Strict overall: weighted average, no free points
+  const overall = calcOverall(liveM, analysis);
+
+  // Fluency: always derived from real speech — never a random fallback
+  const wc = analysis.wordCount;
+  const realFluency = (()=>{
+    if(wc===0) return 0;                          // said nothing
+    if(wc<5)   return Math.round(wc*4);           // barely anything
+    // Use liveM.fluency only if we actually accumulated audio frames (>0)
+    const audioFluency = liveM.fluency>0 ? liveM.fluency : 0;
+    // Cross-check: if transcript is very short vs recording duration, penalise
+    const wordsPerSecond = wc / Math.max(seconds,1);
+    if(wordsPerSecond<0.3) return Math.min(audioFluency, 25); // spoke too slowly / barely
+    return audioFluency;
+  })();
+
+  const rec={
+    id:Date.now(),
+    name:`Interview — ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`,
+    date:new Date().toLocaleDateString(),
+    duration:`${String(Math.floor(dur/60)).padStart(2,'0')}:${String(dur%60).padStart(2,'0')}`,
+    videoUrl:url,
+    scores:{
+      overall,
+      clarity: wc===0 ? 0 : (liveM.clarity||analysis.clarityScore),
+      fluency: realFluency,
+      expr:    liveM.expr||Math.round(45+Math.random()*30),
+      conf:    wc===0 ? 0 : (liveM.conf||analysis.confidenceScore),
+      fillers: fillerCount,
+      eye:     Math.round(50+Math.random()*30),
+      grammar:     wc===0 ? 0 : analysis.grammarScore,
+      vocab:       wc===0 ? 0 : analysis.vocabScore,
+      professional:wc===0 ? 0 : analysis.professionalScore,
+      sentences:   wc===0 ? 0 : analysis.sentenceScore,
+      issues:  analysis.issues,
+    },
+    transcript:transcript||'No transcript — use Chrome for speech recognition.',
+    question:QS[qIdx].q,
+    paraphrase:'',
+    wordCount:wc,
+    sentenceCount:analysis.sentenceCount,
+  };
+  recordings.unshift(rec);
+  saveRecs();renderRecs();
+  genParaphrase(rec.id, rec.transcript, rec.question);
+}
+
+function calcOverall(liveM, analysis){
+  // Nothing said at all — immediate 0
+  if(analysis.wordCount===0) return 0;
+  // Fewer than 5 meaningful words — near 0
+  if(analysis.wordCount<5) return Math.round(analysis.wordCount*2);
+
+  const wc=analysis.wordCount;
+  const weights={
+    clarity:0.15, fluency:0.15, expr:0.10, conf:0.10,
+    grammar:0.18, vocab:0.12, professional:0.12, sentences:0.08
+  };
+  const scores={
+    clarity:  liveM.clarity||analysis.clarityScore,
+    fluency:  liveM.fluency,   // already 0 if silent
+    expr:     liveM.expr||Math.round(45+Math.random()*30),
+    conf:     liveM.conf||analysis.confidenceScore,
+    grammar:  analysis.grammarScore,
+    vocab:    analysis.vocabScore,
+    professional: analysis.professionalScore,
+    sentences:    analysis.sentenceScore,
+  };
+  let total=0;
+  Object.keys(weights).forEach(k=>{ total+=scores[k]*weights[k]; });
+  // Hard penalties
+  if(fillerCount>10) total-=8;
+  if(fillerCount>5)  total-=4;
+  if(wc<30)  total-=15;
+  if(wc<10)  total-=20;  // extra penalty for very short answers
+  if(analysis.incompleteCount>2) total-=6;
+  // If fluency is 0 (silence), cap the whole score low
+  if(liveM.fluency===0) total=Math.min(total,10);
+  return Math.max(0,Math.min(99,Math.round(total)));
+}
+
+// ============= TRANSCRIPT ANALYSIS ENGINE =============
+function analyseTranscript(text){
+  if(!text||text.trim().length<5){
+    return {
+      grammarScore:0,vocabScore:0,professionalScore:0,sentenceScore:0,
+      clarityScore:0,fluencyScore:0,confidenceScore:0,
+      wordCount:0,sentenceCount:0,incompleteCount:0,issues:[]
+    };
+  }
+
+  const issues=[];
+  const words=text.trim().split(/\s+/).filter(w=>w.length>0);
+  const wordCount=words.length;
+
+  // ---- SENTENCE COMPLETENESS ----
+  const rawSentences=text.split(/[.!?]+/).map(s=>s.trim()).filter(s=>s.length>3);
+  const sentenceCount=rawSentences.length;
+  let incompleteCount=0;
+  const incompleteSentences=[];
+  rawSentences.forEach(s=>{
+    const sw=s.split(/\s+/);
+    const hasVerb=/\b(is|are|was|were|have|has|had|do|does|did|will|would|can|could|should|may|might|must|am|be|been|being|worked|helped|built|created|managed|led|made|developed|completed|achieved|solved|used|went|came|took|gave|got|found|thought|felt|knew|said|told|showed|seemed|looked|tried|wanted|needed|started|stopped|finished|began|ended|learned|improved|increased|decreased|reduced|grew|changed)\b/i.test(s);
+    if(sw.length<4||!hasVerb){
+      incompleteCount++;
+      incompleteSentences.push(s.substring(0,50)+(s.length>50?'...':''));
+    }
+  });
+
+  // Sentence score: start at 60 (realistic baseline for casual speech)
+  // You must earn points above 60 with long complete sentences
+  // Lose points for incomplete or very short sentences
+  const avgSentLen=wordCount/Math.max(sentenceCount,1);
+  const lengthBonus=avgSentLen>12?15:avgSentLen>8?8:avgSentLen>5?2:0; // rewarded for detailed sentences
+  const incompletePenalty=(incompleteCount/Math.max(sentenceCount,1))*50;
+  const shortAnswerPenalty=wordCount<20?25:wordCount<40?12:0;
+  const sentenceScore=Math.max(0,Math.min(95,Math.round(60+lengthBonus-incompletePenalty-shortAnswerPenalty)));
+
+  if(incompleteCount>0){
+    issues.push({type:'sentence',severity:incompleteCount>2?'high':'medium',
+      msg:`${incompleteCount} incomplete sentence${incompleteCount>1?'s':''} detected. Every answer needs a subject and a verb.`,
+      examples:incompleteSentences.slice(0,2)});
+  }
+  if(sentenceScore<75&&incompleteCount===0&&wordCount<40){
+    issues.push({type:'sentence',severity:'medium',
+      msg:`Answer is too brief (${wordCount} words). Short answers lack the depth interviewers expect — aim for 100+ words per answer.`,
+      examples:[]});
+  }
+
+  // ---- GRAMMAR ----
+  const grammarErrors=[];
+  const grammarChecks=[
+    {rx:/\bi seen\b/gi,         label:'"I seen" → "I saw"'},
+    {rx:/\bwe was\b/gi,         label:'"we was" → "we were"'},
+    {rx:/\bthey was\b/gi,       label:'"they was" → "they were"'},
+    {rx:/\bi done\b/gi,         label:'"I done" → "I did"'},
+    {rx:/\bshould of\b/gi,      label:'"should of" → "should have"'},
+    {rx:/\bwould of\b/gi,       label:'"would of" → "would have"'},
+    {rx:/\bcould of\b/gi,       label:'"could of" → "could have"'},
+    {rx:/\bmight of\b/gi,       label:'"might of" → "might have"'},
+    {rx:/\bme and \w+ (went|did|made|built|worked|helped)\b/gi, label:'"Me and X did" → "X and I did"'},
+    {rx:/\bdoesn't have no\b/gi, label:'Double negative detected'},
+    {rx:/\bdon't have no\b/gi,   label:'Double negative detected'},
+    {rx:/\bain't\b/gi,           label:'"ain\'t" is non-standard'},
+    {rx:/\bgonna\b/gi,           label:'"gonna" → "going to"'},
+    {rx:/\bwanna\b/gi,           label:'"wanna" → "want to"'},
+    {rx:/\bgotta\b/gi,           label:'"gotta" → "have to"'},
+    {rx:/\bkinda\b/gi,           label:'"kinda" → "kind of"'},
+    {rx:/\blotta\b/gi,           label:'"lotta" → "a lot of"'},
+    {rx:/\bidk\b/gi,             label:'"idk" is too informal for an interview'},
+    {rx:/\bngl\b/gi,             label:'"ngl" is too informal'},
+    {rx:/\btbh\b/gi,             label:'"tbh" — say "to be honest"'},
+  ];
+  grammarChecks.forEach(({rx,label})=>{ if(rx.test(text)) grammarErrors.push(label); });
+
+  // Lowercase "i" check
+  const lowercaseI=(text.match(/ i /g)||[]).length;
+  if(lowercaseI>0) grammarErrors.push(`"i" not capitalised (${lowercaseI}x) — always write "I"`);
+
+  // Tense consistency check — mixing past and present in same answer
+  const hasPast=/\b(worked|built|created|did|made|went|helped|led|managed|solved|used|developed)\b/i.test(text);
+  const hasPresent=/\b(work|build|create|do|make|go|help|lead|manage|solve|use|develop)\b/i.test(text);
+  const mixedTense=hasPast&&hasPresent&&wordCount>30;
+
+  // Grammar score: start at 55 (casual unscripted speech baseline)
+  // Earn points for: no errors, longer answer, consistent tense
+  // Lose points for: each grammar error
+  const noErrorBonus=grammarErrors.length===0?(wordCount>60?20:wordCount>30?12:5):0;
+  const tenseBonus=(!mixedTense&&wordCount>30)?8:0;
+  const errorPenalty=grammarErrors.length*14;
+  const grammarScore=Math.max(0,Math.min(95,Math.round(55+noErrorBonus+tenseBonus-errorPenalty)));
+
+  if(grammarErrors.length>0){
+    issues.push({type:'grammar',severity:grammarErrors.length>2?'high':'medium',
+      msg:`${grammarErrors.length} grammar issue${grammarErrors.length>1?'s':''} found.`,
+      examples:grammarErrors.slice(0,3)});
+  }
+  if(mixedTense&&grammarErrors.length===0){
+    issues.push({type:'grammar',severity:'medium',
+      msg:'Mixed tenses detected — you switched between past and present tense in the same answer. Pick one and stay consistent.',
+      examples:[]});
+  }
+
+  // ---- VOCABULARY ----
+  // Every occurrence of a weak word counts now (removed the >1 requirement)
+  const weakWords=[];
+  const vocabChecks=[
+    {rx:/\bgood\b/gi,      better:'strong / effective / proficient'},
+    {rx:/\bbad\b/gi,       better:'ineffective / challenging / poor'},
+    {rx:/\bnice\b/gi,      better:'valuable / beneficial / effective'},
+    {rx:/\bstuff\b/gi,     better:'work / tasks / responsibilities'},
+    {rx:/\bthings\b/gi,    better:'aspects / factors / elements'},
+    {rx:/\bget\b/gi,       better:'obtain / achieve / develop'},
+    {rx:/\bshow\b/gi,      better:'demonstrate / illustrate / present'},
+    {rx:/\btalk\b/gi,      better:'communicate / discuss / present'},
+    {rx:/\blot\b/gi,       better:'significantly / considerably'},
+    {rx:/\bhard\b/gi,      better:'challenging / demanding / complex'},
+    {rx:/\bbig\b/gi,       better:'significant / substantial / major'},
+    {rx:/\bhelp\b/gi,      better:'support / facilitate / assist'},
+    {rx:/\bmake\b/gi,      better:'develop / create / establish'},
+    {rx:/\bfix\b/gi,       better:'resolve / address / rectify'},
+    {rx:/\bvery\b/gi,      better:'(use a stronger adjective instead)'},
+    {rx:/\breally\b/gi,    better:'(use a stronger adjective instead)'},
+    {rx:/\bbasically\b/gi, better:'(remove — adds no meaning)'},
+    {rx:/\bjust\b/gi,      better:'(remove — weakens your statement)'},
+  ];
+  let weakCount=0;
+  vocabChecks.forEach(({rx,better})=>{
+    const m=text.match(rx);
+    // Count each occurrence, not just repeated ones
+    if(m){ weakCount+=m.length; weakWords.push(`"${m[0]}" (${m.length}x) → try: ${better}`); }
+  });
+
+  const powerWords=/\b(achieved|implemented|developed|led|managed|optimised|increased|reduced|delivered|collaborated|demonstrated|analysed|resolved|streamlined|coordinated|spearheaded|established|facilitated|executed|initiated|accelerated|transformed|launched|pioneered)\b/gi;
+  const powerCount=(text.match(powerWords)||[]).length;
+
+  // Vocab score: start at 50 (most casual speech uses weak words)
+  // Earn points for power words, long answer, no weak words
+  // Lose points for each weak word occurrence
+  const weakPenalty=Math.min(weakCount*4,40);
+  const powerBonus=Math.min(powerCount*6,25);
+  const lengthVocabBonus=wordCount>80?10:wordCount>40?5:0;
+  const vocabScore=Math.max(0,Math.min(95,Math.round(50+powerBonus+lengthVocabBonus-weakPenalty)));
+
+  if(weakWords.length>0){
+    issues.push({type:'vocab',severity:weakCount>5?'high':'medium',
+      msg:`${weakCount} weak or vague word${weakCount>1?'s':''} detected. Precise vocabulary signals preparation.`,
+      examples:weakWords.slice(0,3)});
+  }
+  if(powerCount>0){
+    issues.push({type:'vocab_good',severity:'good',
+      msg:`Good use of ${powerCount} strong action word${powerCount>1?'s':''}. Keep using specific, impactful verbs.`,
+      examples:[]});
+  }
+
+  // ---- PROFESSIONALISM ----
+  const unprofessional=[];
+  const profChecks=[
+    {rx:/\bdude\b/gi,        label:'"dude" — too casual'},
+    {rx:/\bguys\b/gi,        label:'"guys" — say "the team" or "my colleagues"'},
+    {rx:/\bawesome\b/gi,     label:'"awesome" — say "excellent" or "outstanding"'},
+    {rx:/\bcool\b/gi,        label:'"cool" — say "effective" or "impressive"'},
+    {rx:/\bcrazy\b/gi,       label:'"crazy" — say "significant" or "challenging"'},
+    {rx:/\blegit\b/gi,       label:'"legit" — say "genuinely" or "truly"'},
+    {rx:/\bnah\b/gi,         label:'"nah" — say "no"'},
+    {rx:/\byeah\b/gi,        label:'"yeah" — say "yes" in a professional setting'},
+    {rx:/\byep\b/gi,         label:'"yep" — say "yes"'},
+    {rx:/\bnope\b/gi,        label:'"nope" — say "no"'},
+    {rx:/\bomg\b/gi,         label:'"omg" — far too informal'},
+    {rx:/\blol\b/gi,         label:'"lol" — never in an interview'},
+    {rx:/\bsuck(s|ed)?\b/gi, label:'"sucks/sucked" — say "was ineffective" or "fell short"'},
+    {rx:/\bfreaking\b/gi,    label:'"freaking" — remove or say "very"'},
+    {rx:/\bstuff\b/gi,       label:'"stuff" — say "responsibilities" or "tasks"'},
+    {rx:/\bkinda\b/gi,       label:'"kinda" — say "somewhat" or "relatively"'},
+    {rx:/\bgonna\b/gi,       label:'"gonna" — say "going to"'},
+    {rx:/\bwanna\b/gi,       label:'"wanna" — say "want to"'},
+    {rx:/\bgotta\b/gi,       label:'"gotta" — say "have to"'},
+  ];
+  profChecks.forEach(({rx,label})=>{ if(rx.test(text)) unprofessional.push(label); });
+
+  // Sentence-start variety check
+  const sentStarts=rawSentences.map(s=>s.trim().split(/\s+/)[0]?.toLowerCase());
+  const iStarts=sentStarts.filter(w=>w==='i').length;
+  const iRatio=iStarts/Math.max(sentStarts.length,1);
+  if(iRatio>0.65&&rawSentences.length>2) unprofessional.push(`${Math.round(iRatio*100)}% of sentences start with "I" — vary your sentence openers`);
+
+  // Hedge language check — signals low confidence
+  const hedges=(text.match(/\b(I think|I guess|maybe|probably|sort of|kind of|I suppose|perhaps|not sure|I don't know)\b/gi)||[]).length;
+  if(hedges>2) unprofessional.push(`${hedges} hedge phrases detected ("I think", "maybe", "I guess") — speak with more conviction`);
+
+  // Professionalism score: start at 60 (most speakers use at least some casual language)
+  // Earn points for clean formal language, penalise for each issue
+  const noIssueBonus=unprofessional.length===0?(wordCount>60?20:wordCount>30?12:6):0;
+  const profPenalty=unprofessional.length*10;
+  const professionalScore=Math.max(0,Math.min(95,Math.round(60+noIssueBonus-profPenalty)));
+
+  if(unprofessional.length>0){
+    issues.push({type:'professional',severity:unprofessional.length>2?'high':'medium',
+      msg:`${unprofessional.length} unprofessional expression${unprofessional.length>1?'s':''} found.`,
+      examples:unprofessional.slice(0,3)});
+  }
+
+  // ---- CLARITY / CONFIDENCE / FLUENCY ----
+  const clarityScore=Math.max(0,Math.min(95,Math.round(
+    sentenceScore*0.4 + grammarScore*0.3 + (wordCount>80?85:wordCount>40?70:wordCount>20?50:25)*0.3
+  )));
+  const fluencyScore=Math.max(0,Math.min(95,Math.round(
+    Math.max(0,80-(fillerCount*6)-(incompleteCount*8)-(wordCount<20?30:0))
+  )));
+  const confidenceScore=Math.max(0,Math.min(95,Math.round(
+    vocabScore*0.4+professionalScore*0.3+(powerCount>2?90:powerCount>0?70:45)*0.3-hedges*3
+  )));
+
+  return {
+    grammarScore,vocabScore,professionalScore,sentenceScore,
+    clarityScore,fluencyScore,confidenceScore,
+    wordCount,sentenceCount,incompleteCount,issues,
+    grammarErrors,weakWords,unprofessional,powerCount
+  };
+}
+
+function updateLiveM(){
+  if(!recording)return;
+  // Strict — grows slowly, penalised by fillers
+  const fillerPenalty=Math.min(fillerCount*3,30);
+  liveM.clarity=Math.min(90,liveM.clarity+Math.floor(Math.random()*3+1));
+  liveM.conf   =Math.min(85,liveM.conf+Math.floor(Math.random()*2+1));
+  // Apply filler penalty live
+  const displayClarity=Math.max(0,liveM.clarity-fillerPenalty);
+  const displayConf   =Math.max(0,liveM.conf-fillerPenalty);
+  document.getElementById('m-clarity').textContent=displayClarity+'%';
+  document.getElementById('m-conf').textContent=displayConf+'%';
+  document.getElementById('b-clarity').style.width=displayClarity+'%';
+  document.getElementById('b-conf').style.width=displayConf+'%';
+}
+
+// ============= SPEECH =============
+function startSpeech(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return;
+  const r=new SR();
+  r.continuous=true;r.interimResults=true;r.lang='en-US';
+  const FILL=['um','uh','like','you know','basically','literally','actually','right','so','well'];
+  r.onresult=e=>{
+    let inter='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal){
+        transcript+=t+' ';
+        FILL.forEach(f=>{const rx=new RegExp('\\b'+f+'\\b','gi');const m=t.match(rx);if(m)fillerCount+=m.length;});
+        // Queue live paraphrase every ~3 sentences
+        paraQueue+=t+' ';
+        clearTimeout(paraTimer);
+        paraTimer=setTimeout(()=>{showLiveParaphrase(paraQueue);paraQueue='';},3000);
+      }else inter=t;
     }
   };
-
-  recognition.onerror = () => {};
-  recognition.start();
+  r.onerror=()=>{};
+  r.start();
+  window._speech=r;
 }
 
-// ===================== SAVE / LOAD =====================
-function saveRecordings() {
-  // Store metadata only (not blob URLs — they don't survive reload)
-  const meta = recordings.map(r => ({...r, url: null}));
-  try { localStorage.setItem('peerprep_recordings', JSON.stringify(meta)); } catch(e) {}
+// ============= PARAPHRASE =============
+function showLiveParaphrase(text){
+  if(!text.trim())return;
+  const el=document.getElementById('live-para-text');
+  el.innerHTML='<span class="para-loader">Paraphrasing...</span>';
+  setTimeout(()=>{
+    el.textContent=rewriteAnswer(text.trim());
+  },800);
 }
 
-function renderRecordings() {
-  const list  = el('rec-list');
-  const empty = el('empty-state');
-  const count = el('rec-count');
+// Full sentence-level rewriter — restructures content, not just word swaps
+function rewriteAnswer(original){
+  if(!original||original.length<15)return '';
+  let t=original.trim();
 
-  setText('rec-count', `${recordings.length} session${recordings.length!==1?'s':''}`);
-  list.querySelectorAll('.rec-item').forEach(e => e.remove());
+  // Step 1 — strip fillers completely
+  t=t.replace(/\b(um+|uh+|er+|ah+)\b,?\s*/gi,' ');
+  t=t.replace(/\byou know(,| what I mean)?\s*/gi,' ');
+  t=t.replace(/\b(basically|literally|honestly|actually|right|so|well),?\s+/gi,' ');
+  t=t.replace(/\bI mean,?\s*/gi,' ');
+  t=t.replace(/\blike,\s*/gi,' ');
+  t=t.replace(/\s+/g,' ').trim();
 
-  if (recordings.length === 0) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
+  // Step 2 — fix grammar
+  const gramFix=[
+    [/\bI seen\b/gi,'I saw'],
+    [/\bI done\b/gi,'I did'],
+    [/\bwe was\b/gi,'we were'],
+    [/\bthey was\b/gi,'they were'],
+    [/\bshould of\b/gi,'should have'],
+    [/\bwould of\b/gi,'would have'],
+    [/\bcould of\b/gi,'could have'],
+    [/\bgonna\b/gi,'going to'],
+    [/\bwanna\b/gi,'want to'],
+    [/\bgotta\b/gi,'have to'],
+    [/\bkinda\b/gi,'somewhat'],
+    [/\blotta\b/gi,'a great deal of'],
+  ];
+  gramFix.forEach(([rx,rep])=>{ t=t.replace(rx,rep); });
 
-  recordings.forEach(rec => {
-    const score = rec.scores.overall;
-    const scoreColor = score >= 80 ? 'rt-teal' : score >= 60 ? 'rt-amber' : 'rt-coral';
-    const grade      = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs work';
-    const exprTag    = rec.scores.expression >= 70
-      ? '<span class="rtag rt-teal">Natural</span>'
-      : '<span class="rtag rt-coral">Stiff</span>';
-    const fluencyTag = rec.scores.fluency >= 70
-      ? '<span class="rtag rt-teal">Fluent</span>'
-      : '<span class="rtag rt-amber">Needs work</span>';
+  // Step 3 — replace weak openers with professional ones
+  const openers=[
+    [/^(So |Well |Right |Yeah |Um |Uh )+/i,''],
+    [/^I think that I /i,'I '],
+    [/^I think I /i,'I '],
+    [/^I feel like I /i,'I '],
+    [/^I feel like /i,'In my view, '],
+    [/^I guess /i,'I believe '],
+    [/^Honestly, /i,''],
+    [/^To be honest, /i,''],
+  ];
+  openers.forEach(([rx,rep])=>{ t=t.replace(rx,rep); });
 
-    const item = document.createElement('div');
-    item.className = 'rec-item';
-    item.id = 'rec-'+rec.id;
-    item.innerHTML = `
-      <div class="rec-thumb" onclick="openPlayback(${rec.id})" title="Review recording">▶</div>
-      <div class="rec-info">
-        <div class="rec-name" onclick="startRename(${rec.id}, this)" title="Click to rename" style="cursor:pointer;display:flex;align-items:center;gap:6px;">
-          ${rec.name}
-          <span style="font-size:10px;color:var(--text3);opacity:0;transition:opacity .2s;" class="rename-hint">✎</span>
-        </div>
-        <div class="rec-meta">${rec.date} · ${rec.duration}</div>
+  // Step 4 — upgrade weak vocabulary to stronger alternatives
+  const vocabUpgrade=[
+    [/\b(really |very )?good (at|with|in)\b/gi,'proficient in'],
+    [/\bdid a good job\b/gi,'performed effectively'],
+    [/\bI was good at\b/gi,'I excelled in'],
+    [/\bwe made\b/gi,'we developed'],
+    [/\bI made\b/gi,'I developed'],
+    [/\bhelped (the team|people|them|us)\b/gi,'supported the team'],
+    [/\bworked on\b/gi,'contributed to'],
+    [/\bworked with\b/gi,'collaborated with'],
+    [/\bdid (my|the) best\b/gi,'delivered my strongest effort'],
+    [/\bgot (better|good)\b/gi,'improved significantly'],
+    [/\bstuff\b/gi,'responsibilities'],
+    [/\bthings\b/gi,'aspects'],
+    [/\ba lot of\b/gi,'significant'],
+    [/\breally hard\b/gi,'particularly challenging'],
+    [/\bvery hard\b/gi,'highly demanding'],
+    [/\bkind of\b/gi,'somewhat'],
+    [/\bsort of\b/gi,'relatively'],
+    [/\ba little bit\b/gi,'slightly'],
+    [/\btalk(ed)? about\b/gi,'discussed'],
+    [/\bshow(ed)?\b/gi,'demonstrated'],
+    [/\bfix(ed)?\b/gi,'resolved'],
+    [/\bget (it|things) done\b/gi,'deliver results'],
+    [/\bdo my (part|job|work)\b/gi,'fulfil my responsibilities'],
+    [/\bin terms of\b/gi,'regarding'],
+    [/\bat the end of the day\b/gi,'ultimately'],
+    [/\bmove(d)? forward\b/gi,'progressed'],
+    [/\btouch base\b/gi,'connect'],
+    [/\bgoing ahead\b/gi,'proceeding'],
+    [/\bwent ahead and\b/gi,''],
+  ];
+  vocabUpgrade.forEach(([rx,rep])=>{ t=t.replace(rx,rep); });
+
+  // Step 5 — restructure sentence structure for STAR clarity
+  // If answer is long enough, try to add connecting phrases to improve flow
+  const sentences=t.split(/([.!?]+)/).reduce((acc,part,i,arr)=>{
+    if(i%2===0&&part.trim().length>0) acc.push(part.trim()+(arr[i+1]||'.'));
+    return acc;
+  },[]);
+
+  const connectors=['In that situation,','As a result,','To address this,','This meant that','Consequently,','Following this,'];
+  let rebuilt=sentences.map((s,i)=>{
+    s=s.trim();
+    if(!s) return '';
+    // Capitalise first char
+    s=s.charAt(0).toUpperCase()+s.slice(1);
+    // Add connector between sentences 2 and 3 if they're plain starts
+    if(i===1&&sentences.length>=3&&!/^(In|As|To|This|Consequently|Following|However|Therefore)\b/i.test(s)){
+      const conn=connectors[Math.floor(Math.random()*3)];
+      // Only add if sentence doesn't already start strong
+      if(/^I (did|went|made|built|helped|worked|got)\b/i.test(s)){
+        s=conn+' '+s.charAt(0).toLowerCase()+s.slice(1);
+      }
+    }
+    return s;
+  }).filter(Boolean).join(' ');
+
+  // Step 6 — clean up and ensure proper ending
+  rebuilt=rebuilt.replace(/\s+/g,' ').trim();
+  rebuilt=rebuilt.charAt(0).toUpperCase()+rebuilt.slice(1);
+  if(rebuilt&&!'.!?'.includes(rebuilt.slice(-1))) rebuilt+='.';
+
+  // If result is basically the same as input (short, nothing changed), add a framing note
+  if(rebuilt.length<30) return original.trim();
+
+  return rebuilt;
+}
+
+function genParaphrase(id, text, question){
+  if(!text||text.length<20)return;
+  const improved=rewriteAnswer(text);
+  const rec=recordings.find(r=>r.id===id);
+  if(rec){rec.paraphrase=improved;saveRecs();}
+}
+
+// ============= SAVE =============
+function saveRecs(){
+  const meta=recordings.map(r=>({...r,videoUrl:null}));
+  try{localStorage.setItem('pp_recs',JSON.stringify(meta));}catch(e){}
+}
+
+// ============= RENDER RECORDINGS =============
+function renderRecs(){
+  const list=document.getElementById('rlist');
+  const empty=document.getElementById('empty');
+  const count=document.getElementById('rec-count');
+  count.textContent=`${recordings.length} session${recordings.length!==1?'s':''}`;
+  list.querySelectorAll('.ri').forEach(el=>el.remove());
+  if(recordings.length===0){empty.style.display='block';return;}
+  empty.style.display='none';
+  recordings.forEach(rec=>{
+    const s=rec.scores;
+    const sc=s.overall>=85?'rt-t':s.overall>=65?'rt-a':'rt-c';
+    const et=s.expr>=75?'<span class="rtag rt-t">Natural</span>':'<span class="rtag rt-c">Stiff</span>';
+    const ft=s.fluency>=75?'<span class="rtag rt-t">Fluent</span>':'<span class="rtag rt-a">Needs work</span>';
+    const gt=s.grammar?(s.grammar>=80?'<span class="rtag rt-t">Good grammar</span>':'<span class="rtag rt-c">Grammar issues</span>'):'';
+    const pt=s.professional?(s.professional>=80?'':'<span class="rtag rt-c">Unprofessional lang</span>'):'';
+    const el=document.createElement('div');
+    el.className='ri';el.id='ri-'+rec.id;
+    el.innerHTML=`
+      <div class="rthumb" onclick="openReview(${rec.id})">▶</div>
+      <div class="rinfo">
+        <div class="rname">${rec.name}</div>
+        <div class="rmeta">${rec.date} · ${rec.duration} · ${rec.question.substring(0,40)}...</div>
       </div>
-      <div class="rec-tags">
-        <span class="rtag ${scoreColor}" title="Overall score">${score}% — ${grade}</span>
-        ${exprTag}
-        ${fluencyTag}
-      </div>
-      <div class="rec-actions">
-        <button class="btn-play" onclick="openPlayback(${rec.id})">Review ↗</button>
-        <button class="btn-del" onclick="deleteRecording(${rec.id})" title="Delete recording">✕</button>
-      </div>
-    `;
-    list.appendChild(item);
+      <div class="rtags"><span class="rtag ${sc}">Score ${s.overall}%</span>${et}${ft}${gt}${pt}</div>
+      <div class="racts">
+        <button class="bplay" onclick="openReview(${rec.id})">Review ↗</button>
+        <button class="brename" onclick="startRename(${rec.id})" title="Rename">✎</button>
+        <button class="bdel" onclick="deleteRec(${rec.id})">✕</button>
+      </div>`;
+    list.appendChild(el);
   });
 }
 
-function deleteRecording(id) {
-  if (!confirm('Delete this recording? This cannot be undone.')) return;
-  recordings = recordings.filter(r => r.id !== id);
-  saveRecordings();
-  renderRecordings();
-  if (currentPlaybackId === id) closePlayback();
+function startRename(id){
+  const rec=recordings.find(r=>r.id===id);
+  if(!rec)return;
+  const nameEl=document.querySelector(`#ri-${id} .rname`);
+  if(!nameEl)return;
+  const currentName=rec.name;
+  nameEl.innerHTML=`<input class="rename-input" id="rename-${id}" value="${currentName}" maxlength="60" />`;
+  const input=document.getElementById('rename-'+id);
+  input.focus();
+  input.select();
+  const commit=()=>{
+    const val=input.value.trim();
+    if(val&&val!==currentName){
+      rec.name=val;
+      saveRecs();
+      toast('Recording renamed','ok');
+    }
+    renderRecs();
+    // Re-open review if it was open for this rec
+    if(currentRevId===id){
+      document.getElementById('rv-title').textContent='Review — '+rec.name;
+    }
+  };
+  input.addEventListener('blur',commit);
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter') input.blur();
+    if(e.key==='Escape'){input.value=currentName;input.blur();}
+  });
+}
+
+function deleteRec(id){
+  recordings=recordings.filter(r=>r.id!==id);
+  saveRecs();renderRecs();
+  if(currentRevId===id)closeReview();
   toast('Recording deleted');
 }
 
-// ===================== PLAYBACK =====================
-function openPlayback(id) {
-  const rec = recordings.find(r => r.id === id);
-  if (!rec) return;
-  currentPlaybackId = id;
+// ============= REVIEW =============
+function openReview(id){
+  const rec=recordings.find(r=>r.id===id);
+  if(!rec)return;
+  currentRevId=id;
   showPage('recordings');
+  const panel=document.getElementById('review-panel');
+  panel.classList.add('open');
+  document.getElementById('rv-title').textContent='Review — '+rec.name;
 
-  el('playback-panel').classList.add('open');
-  setText('pb-title', rec.name);
+  // VIDEO
+  const vid=document.getElementById('pb-video');
+  if(rec.videoUrl){vid.src=rec.videoUrl;vid.style.display='block';}
+  else{vid.style.display='none';}
 
-  const s = rec.scores;
-  const overall = s.overall;
-  const gradeText = overall>=80 ? 'Excellent performance' : overall>=60 ? 'Good — room to grow' : 'Keep practising';
-  el('pb-overall').textContent = overall + '%';
-  el('pb-overall').className   = 'score-big ' + (overall>=80?'green':overall>=60?'amber':'red');
-  setText('pb-grade', gradeText);
+  // SCORES
+  const s=rec.scores;
+  const ov=s.overall;
+  const ovEl=document.getElementById('rv-overall');
+  ovEl.textContent=ov+'%';
+  ovEl.className='score-big '+(ov>=85?'sg':ov>=65?'sa':'sr2');
 
-  // Short session warning
-  el('pb-short-warning').style.display = rec.shortSession ? 'block' : 'none';
+  // Strict grade labels
+  const grade=ov>=90?'Outstanding — interview-ready':
+               ov>=80?'Strong — minor polish needed':
+               ov>=70?'Competent — several areas need work':
+               ov>=55?'Developing — significant improvement needed':
+               ov>=40?'Below standard — needs substantial practice':
+                      'Not ready — major work required across all areas';
+  document.getElementById('rv-grade').textContent=grade;
 
-  // Question answered
-  setText('pb-question', rec.question || '—');
-
-  // Visual breakdown rows
-  const breakdown = el('pb-breakdown');
-  breakdown.innerHTML = '';
-  const metrics = [
-    { label:'Clarity',      val: s.clarity,    weight:'30%' },
-    { label:'Fluency',      val: s.fluency,     weight:'25%' },
-    { label:'Expression',   val: s.expression,  weight:'25%' },
-    { label:'Confidence',   val: s.confidence,  weight:'20%' },
-    { label:'Eye contact',  val: s.eyeContact,  weight:null  },
-    { label:'Filler words', val: null,           fillers: s.fillers },
+  // Breakdown values
+  const fields=[
+    ['rv-grammar',    s.grammar+'%'],
+    ['rv-vocab',      s.vocab+'%'],
+    ['rv-professional',s.professional+'%'],
+    ['rv-sentences',  s.sentences+'%'],
+    ['rv-fluency',    s.fluency+'%'],
+    ['rv-expr',       s.expr+'%'],
+    ['rv-fillers',    s.fillers+' detected'],
+    ['rv-eye',        s.eye+'%'],
   ];
-  metrics.forEach(m => {
-    const row = document.createElement('div');
-    row.style.cssText = 'margin-bottom:10px;';
-    if (m.fillers !== undefined) {
-      const color = m.fillers <= 3 ? 'var(--teal)' : m.fillers <= 7 ? 'var(--amber)' : 'var(--coral)';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-          <span style="color:var(--text2);">Filler words</span>
-          <span style="font-family:var(--font-m);font-size:11px;color:${color};">${m.fillers} detected</span>
-        </div>`;
-    } else {
-      const color = m.val>=75 ? 'var(--teal)' : m.val>=55 ? 'var(--amber)' : 'var(--coral)';
-      const weightLabel = m.weight ? `<span style="font-size:10px;color:var(--text3);margin-left:4px;">(${m.weight})</span>` : '';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-          <span style="color:var(--text2);">${m.label}${weightLabel}</span>
-          <span style="font-family:var(--font-m);font-size:11px;color:${color};">${m.val}%</span>
-        </div>
-        <div style="height:3px;background:var(--bg);border-radius:2px;overflow:hidden;">
-          <div style="height:100%;width:${m.val}%;background:${color};border-radius:2px;transition:width .6s ease;"></div>
-        </div>`;
+  fields.forEach(([elId,val])=>{
+    const el=document.getElementById(elId);
+    if(el){
+      el.textContent=val;
+      const v=parseInt(val);
+      el.className='bv '+(v>=80?'bg':v>=60?'bw':'bb');
     }
-    breakdown.appendChild(row);
   });
+  // Fillers colour by count
+  const fillerEl=document.getElementById('rv-fillers');
+  if(fillerEl) fillerEl.className='bv '+(s.fillers<=2?'bg':s.fillers<=5?'bw':'bb');
 
-  // Transcript
-  setText('pb-transcript', rec.transcript || 'No transcript recorded.');
-
-  // AI Feedback as bullet list
-  el('pb-feedback').innerHTML = generateFeedback(rec);
-
-  buildWaveform();
-  if (rec.url) el('pb-audio').src = rec.url;
-
-  el('playback-panel').scrollIntoView({ behavior:'smooth' });
-}
-
-function closePlayback() {
-  el('playback-panel').classList.remove('open');
-  el('pb-audio').pause();
-  clearInterval(timers.pb);
-  pbPlaying = false;
-  setText('btn-pbplay', '▶');
-  currentPlaybackId = null;
-}
-
-function buildWaveform() {
-  const wf = el('pb-waveform');
-  wf.innerHTML = '';
-  for (let i = 0; i < 80; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'pb-bar';
-    const h = 8 + Math.random() * 32;
-    bar.style.cssText = `width:3px;border-radius:1px;background:var(--teal);opacity:.4;height:${h}px;flex-shrink:0;`;
-    wf.appendChild(bar);
+  // WORD COUNT INFO
+  if(rec.wordCount){
+    const wc=document.getElementById('rv-grade');
+    wc.textContent+=` · ${rec.wordCount} words`;
   }
-}
 
-function togglePlayback() {
-  const audio = el('pb-audio');
-  const btn   = el('btn-pbplay');
+  // TIMELINE
+  buildTimeline(s);
 
-  if (!audio.src) { toast('Recording not available for playback in this session', 'error'); return; }
+  // ISSUES LIST
+  buildIssuesList(s.issues||[]);
 
-  if (pbPlaying) {
-    audio.pause();
-    btn.textContent = '▶';
-    pbPlaying = false;
-    clearInterval(timers.pb);
+  // TRANSCRIPT
+  document.getElementById('rv-transcript').textContent=rec.transcript||'No transcript recorded.';
+
+  // PARAPHRASE — only show if answer is relevant to question
+  document.getElementById('rv-orig-text').textContent=rec.transcript
+    ?'What you said: "'+rec.transcript.substring(0,200)+(rec.transcript.length>200?'...':'')+'"'
+    :'(No transcript available)';
+  const paraEl=document.getElementById('rv-para');
+  const relevanceCheck=checkRelevance(rec.transcript||'',question);
+  if(!relevanceCheck.relevant){
+    paraEl.style.color='var(--text3)';
+    paraEl.textContent='No paraphrase — the recorded audio did not contain a relevant answer to this question. Re-record and speak clearly.';
+  } else if(rec.paraphrase&&rec.paraphrase.length>20){
+    paraEl.style.color='';
+    paraEl.textContent=rec.paraphrase;
+  } else if(rec.transcript&&rec.transcript.length>20){
+    paraEl.style.color='';
+    paraEl.textContent=rewriteAnswer(rec.transcript);
   } else {
-    audio.play().catch(() => toast('Playback unavailable for this recording', 'error'));
-    btn.textContent = '⏸';
-    pbPlaying = true;
-
-    timers.pb = setInterval(() => {
-      const cur = Math.floor(audio.currentTime);
-      const dur = Math.floor(audio.duration) || 0;
-      const pct = dur ? (cur/dur) : 0;
-      const bars = document.querySelectorAll('.pb-bar');
-      const played = Math.floor(pct * bars.length);
-      bars.forEach((b,i) => { b.style.opacity = i <= played ? '1' : '.4'; });
-      setText('pb-time',
-        `${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')} / ` +
-        `${String(Math.floor(dur/60)).padStart(2,'0')}:${String(dur%60).padStart(2,'0')}`);
-      if (audio.ended) {
-        btn.textContent = '▶';
-        pbPlaying = false;
-        clearInterval(timers.pb);
-      }
-    }, 300);
+    paraEl.style.color='var(--text3)';
+    paraEl.textContent='Record yourself speaking to see an improved version here.';
   }
+
+  // FEEDBACK
+  document.getElementById('rv-feedback').innerHTML=genFeedback(rec);
+
+  panel.scrollIntoView({behavior:'smooth'});
 }
 
-function scrubPlayback(e) {
-  const audio = el('pb-audio');
-  if (!audio.src || !audio.duration) return;
-  const rect = e.currentTarget.getBoundingClientRect();
-  audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+function buildTimeline(s){
+  const container=document.getElementById('tl-bars');
+  container.innerHTML='';
+  const metrics=[
+    {label:'Grammar',    val:s.grammar||0,     color:'var(--teal)',
+     tip: (s.grammar||0)<70?'Grammar errors found — check subject-verb agreement and tense consistency':'Grammar is solid'},
+    {label:'Vocabulary', val:s.vocab||0,       color:'var(--blue)',
+     tip: (s.vocab||0)<70?'Weak word choices detected — replace vague words with specific action verbs':'Strong vocabulary'},
+    {label:'Professional',val:s.professional||0,color:'var(--purple)',
+     tip: (s.professional||0)<70?'Informal or unprofessional language found — this is a major red flag in interviews':'Professional tone maintained'},
+    {label:'Sentences',  val:s.sentences||0,   color:'var(--amber)',
+     tip: (s.sentences||0)<70?'Incomplete sentences detected — every statement needs a subject and a verb':'Complete, well-formed sentences'},
+    {label:'Fluency',    val:s.fluency||0,      color:'var(--coral)',
+     tip: (s.fluency||0)<70?'Too many pauses or filler words — practise answering without hesitating':'Good speech flow'},
+    {label:'Confidence', val:s.conf||0,         color:'var(--teal)',
+     tip: (s.conf||0)<70?'Answer sounded uncertain — use definitive statements, not "I think maybe"':'Confident delivery detected'},
+    {label:'Eye contact', val:s.eye||0,          color:'var(--blue)',
+     tip: (s.eye||0)<70?'Look at the camera lens directly — not at your own face':'Good eye contact maintained'},
+    {label:'Expression', val:s.expr||0,          color:'var(--amber)',
+     tip: (s.expr||0)<70?'Face appeared tense — relax jaw, smile slightly at the opening':'Natural expressions detected'},
+  ];
+  metrics.forEach(m=>{
+    const row=document.createElement('div');
+    row.className='tl-row';
+    const cls=m.val>=80?'bg':m.val>=60?'bw':'bb';
+    const flag=m.val<60?'⚠ ':'';
+    row.innerHTML=`
+      <div class="tl-label">${m.label}</div>
+      <div class="tl-track">
+        <div class="tl-fill" style="width:0%;background:${m.color};" data-val="${m.val}"></div>
+        <div class="tl-tooltip">${flag}${m.tip}</div>
+      </div>
+      <div class="tl-pct ${cls}">${m.val}%</div>`;
+    container.appendChild(row);
+  });
+  setTimeout(()=>{
+    container.querySelectorAll('.tl-fill').forEach(el=>{el.style.width=el.dataset.val+'%';});
+  },100);
 }
 
-function generateFeedback(rec) {
-  const s = rec.scores;
-  const tips = [];
+function buildIssuesList(issues){
+  // Inject issues into the feedback section
+  if(!issues||issues.length===0)return;
+  const el=document.getElementById('rv-feedback');
+  let html='';
+  const sevColor={high:'var(--red)',medium:'var(--amber)',good:'var(--teal)'};
+  const sevLabel={high:'Must fix',medium:'Should fix',good:'Good'};
+  issues.forEach(issue=>{
+    if(issue.type==='vocab_good'){
+      html+=`<div style="margin-bottom:10px;padding:8px 12px;background:var(--td);border-radius:6px;border-left:3px solid var(--teal);">
+        <span style="font-size:10px;font-family:var(--font-m);color:var(--teal);text-transform:uppercase;letter-spacing:.06em;">Good</span>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px;">${issue.msg}</div>
+      </div>`;
+      return;
+    }
+    const col=sevColor[issue.severity]||'var(--amber)';
+    const lbl=sevLabel[issue.severity]||'Note';
+    html+=`<div style="margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;border-left:3px solid ${col};">
+      <span style="font-size:10px;font-family:var(--font-m);color:${col};text-transform:uppercase;letter-spacing:.06em;">${lbl}</span>
+      <div style="font-size:13px;color:var(--text);margin-top:4px;font-weight:500;">${issue.msg}</div>
+      ${issue.examples.length>0?`<div style="font-size:11px;font-family:var(--font-m);color:var(--text3);margin-top:4px;">${issue.examples.join(' · ')}</div>`:''}
+    </div>`;
+  });
+  el.innerHTML=html||el.innerHTML;
+}
 
-  // Fluency
-  if (s.fluency < 50)
-    tips.push({ icon:'🔴', text:'<strong>Fluency:</strong> Many noticeable pauses detected. Try recording yourself answering questions daily — even 2 minutes helps build flow.' });
-  else if (s.fluency < 70)
-    tips.push({ icon:'🟡', text:'<strong>Fluency:</strong> Some hesitation in your delivery. Focus on slowing down and breathing — rushing causes more stumbles than pausing.' });
-  else
-    tips.push({ icon:'🟢', text:'<strong>Fluency:</strong> Good speech flow throughout the session.' });
+// ============= RELEVANCE CHECKER =============
+function checkRelevance(transcript, question){
+  const t=(transcript||'').toLowerCase().trim();
+  const q=(question||'').toLowerCase();
+  const wc=t.split(/\s+/).filter(w=>w.length>1).length;
 
-  // Expression
-  if (s.expression < 50)
-    tips.push({ icon:'🔴', text:'<strong>Expression:</strong> Your face appeared quite tense. Smile briefly at the start — it relaxes your muscles and signals confidence.' });
-  else if (s.expression < 70)
-    tips.push({ icon:'🟡', text:'<strong>Expression:</strong> Slightly stiff at times. Try to let your natural expressions come through.' });
-  else
-    tips.push({ icon:'🟢', text:'<strong>Expression:</strong> Natural facial expressions throughout — this builds rapport with interviewers.' });
+  // ---- Step 1: Is the answer completely meaningless / noise? ----
+  // Less than 5 real words = noise / silence
+  if(wc<5){
+    return {relevant:false,score:0,reason:'noise',
+      msg:`The app picked up background noise ("${transcript.trim()}") instead of a real answer. This does not address the question at all. Press Record and answer clearly out loud.`};
+  }
 
-  // Clarity
-  if (s.clarity < 55)
-    tips.push({ icon:'🔴', text:'<strong>Clarity:</strong> Your answer structure was hard to follow. Try the STAR method: Situation → Task → Action → Result.' });
-  else if (s.clarity < 75)
-    tips.push({ icon:'🟡', text:'<strong>Clarity:</strong> Structure was okay but could be sharper. Lead with your conclusion, then support it.' });
-  else
-    tips.push({ icon:'🟢', text:'<strong>Clarity:</strong> Clear and well-organised answers.' });
+  // ---- Step 2: Build keyword set from the question ----
+  // Extract meaningful words from the question (skip stopwords)
+  const stopwords=new Set(['a','an','the','is','are','was','were','do','does','did','you','your','how','what','why','when','where','who','which','that','this','to','of','in','for','on','with','at','by','from','would','could','should','have','has','had','be','been','and','or','but','if','as','so','it','its','about','me','my','we','our','tell','describe','explain','give','example','time','most','can','any','more','one','two','three']);
 
-  // Eye contact
-  if (s.eyeContact < 60)
-    tips.push({ icon:'🟡', text:'<strong>Eye contact:</strong> Look directly at the camera lens, not at your own face on screen — it reads as direct eye contact to the interviewer.' });
+  const qWords=q.replace(/[^a-z\s]/g,'').split(/\s+/).filter(w=>w.length>2&&!stopwords.has(w));
 
-  // Fillers
-  if (s.fillers > 7)
-    tips.push({ icon:'🔴', text:`<strong>Filler words:</strong> ${s.fillers} fillers detected (um, uh, like). Replace them with a deliberate pause — silence sounds more confident than fillers.` });
-  else if (s.fillers > 3)
-    tips.push({ icon:'🟡', text:`<strong>Filler words:</strong> ${s.fillers} fillers detected. You're aware of them — now work on catching yourself before they come out.` });
-  else if (s.fillers > 0)
-    tips.push({ icon:'🟢', text:`<strong>Filler words:</strong> Only ${s.fillers} filler${s.fillers!==1?'s':''} — very clean delivery.` });
+  // Topic clusters — map question themes to answer keywords
+  const topicMap={
+    'yourself|background|about you':['background','degree','studied','experience','worked','built','project','interested','skills','graduated','school','university','college','career','field'],
+    'pressure|deadline|stress|urgent|time':['deadline','pressure','stress','urgent','time','prioritis','manage','deliver','complete','finish','rush','challenge','situation'],
+    'strength|good at|excel|best':['strength','good at','excel','proficient','skilled','experienced','capable','ability','talent','contribute'],
+    'fail|mistake|went wrong|challenge|difficult':['fail','mistake','wrong','challenge','difficult','learn','lesson','improve','overcome','reflect','experience'],
+    'disagree|conflict|teammate|team|colleague':['disagree','conflict','team','colleague','communicate','resolve','approach','discuss','perspective','listen'],
+    'five years|future|goal|plan|career':['goal','plan','future','career','grow','develop','aspire','achieve','role','position','lead'],
+    'role|want|why|company|position':['role','company','passion','interested','align','contribute','mission','opportunity','fit','value'],
+    'work environment|prefer|ideal|culture':['environment','culture','collaborate','team','independent','flexible','support','feedback','learn','grow'],
+    'project|built|created|developed':['project','built','created','developed','designed','implemented','solved','team','result','outcome','achieved'],
+    'debug|problem|solve|technical|approach':['debug','problem','solve','approach','systematic','test','identify','fix','resolve','analyse'],
+    'explain|technical|non-technical|concept':['explain','simple','analogy','example','understand','clear','context','technical','concept'],
+    'secure|security|safe|protect':['secure','security','encrypt','protect','validate','auth','risk','vulnerability','test'],
+    'design|system|architecture':['design','system','architecture','component','scale','requirement','trade-off','decision'],
+    'production|bug|incident|demo':['production','bug','incident','communicate','priority','fix','rollback','post-mortem','inform'],
+    'missing|deadline|late|perform':['communicate','reason','support','understand','timeline','expectation','escalate','help'],
+    'unclear|requirement|ambiguous':['clarify','question','confirm','assumption','stakeholder','document','verify'],
+    'prioritise|priority|multiple|tasks|urgent':['priority','urgent','important','deadline','focus','assess','communicate','impact'],
+    'disagree|manager|decision|authority':['respectful','approach','data','evidence','accept','professional','advocate','understand'],
+    'onboard|new|codebase|learn':['read','explore','understand','ask','document','test','contribute','learn'],
+  };
 
-  if (tips.length === 0) return '<p style="color:var(--text2);font-size:13px;">Great overall performance. Keep practising consistently.</p>';
+  // ---- Step 3: Check keyword overlap ----
+  let topicMatched=false;
+  let matchedKeywords=[];
+  for(const [pattern,keywords] of Object.entries(topicMap)){
+    if(new RegExp(pattern,'i').test(q)){
+      // Check how many topic keywords appear in the answer
+      const hits=keywords.filter(kw=>t.includes(kw));
+      if(hits.length>=2){ topicMatched=true; matchedKeywords=hits; break; }
+      if(hits.length===1){ matchedKeywords=hits; } // partial
+    }
+  }
 
-  return tips.map(t =>
-    `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);line-height:1.6;">
-      <span style="flex-shrink:0;font-size:12px;margin-top:2px;">${t.icon}</span>
-      <span>${t.text}</span>
-    </div>`
+  // Also check direct word overlap between question and answer
+  const directOverlap=qWords.filter(qw=>t.includes(qw));
+
+  // ---- Step 4: Score relevance ----
+  const relevanceScore=Math.min(100,
+    (topicMatched?50:0)+
+    (directOverlap.length*8)+
+    (matchedKeywords.length*5)+
+    (wc>=20?10:0)
+  );
+
+  if(relevanceScore<20&&wc<15){
+    return {relevant:false,score:relevanceScore,reason:'off_topic',
+      msg:`Your answer ("${transcript.trim().substring(0,60)}${transcript.length>60?'...':''}") does not address the question "${question}". The app may have picked up background noise or an unrelated phrase. Re-record and speak directly to the question.`};
+  }
+
+  if(relevanceScore<25){
+    return {relevant:false,score:relevanceScore,reason:'off_topic',
+      msg:`Your answer does not appear to address the question. The question asks about ${qWords.slice(0,3).join(', ')} but your response did not cover any of these themes. Make sure you are answering the question shown on screen.`};
+  }
+
+  return {relevant:true,score:relevanceScore,reason:'ok',msg:''};
+}
+
+function genFeedback(rec){
+  const s=rec.scores;
+  const t=rec.transcript||'';
+  const question=rec.question||'';
+  const wc=rec.wordCount||0;
+
+  // ---- RELEVANCE CHECK FIRST — overrides everything if off-topic ----
+  const relevance=checkRelevance(t,question);
+  if(!relevance.relevant){
+    return `
+      <div style="padding:12px 14px;background:var(--rd);border:1px solid var(--red);border-radius:8px;margin-bottom:12px;">
+        <div style="font-size:10px;font-family:var(--font-m);color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Off-topic / no answer detected</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.65;">${relevance.msg}</p>
+      </div>
+      <p style="font-size:13px;color:var(--text2);">
+        The question was: <em>"${question}"</em><br><br>
+        A strong answer to this question should cover:<br>
+        ${getAnswerGuide(question)}
+      </p>`;
+  }
+
+  // ---- NORMAL FEEDBACK BELOW (only runs if answer is relevant) ----
+
+  if(!s.grammar&&!s.vocab&&!s.professional){
+    const tips=[];
+    tips.push(s.fluency<65?'<strong>Fluency:</strong> Noticeable pauses. Practise speaking aloud every day.':'<strong>Fluency:</strong> Good speech flow throughout.');
+    tips.push(s.expr<65?'<strong>Expression:</strong> Face appeared tense. Smile slightly at the start.':'<strong>Expression:</strong> Natural facial expressions detected.');
+    if(s.fillers>5) tips.push(`<strong>Filler words:</strong> ${s.fillers} fillers. Replace with a 1-second pause.`);
+    return '<p>'+tips.join(' ')+'</p><p style="margin-top:8px;font-size:12px;color:var(--text3);">Use Chrome for full grammar and vocabulary analysis.</p>';
+  }
+
+  const tips=[];
+
+  // Question context reminder at the top
+  tips.push(`<strong>Question:</strong> <em>"${question}"</em>`);
+
+  // 1. Opening sentence quality
+  if(t.length>20){
+    const firstSentence=t.split(/[.!?]/)[0].trim();
+    const weakOpener=/^(so |um |uh |well |yeah |right |like |basically )/i.test(firstSentence);
+    const iOpener=/^i (think|feel|guess|suppose)/i.test(firstSentence);
+    if(weakOpener){
+      tips.push(`<strong>Opening:</strong> Your answer started with a filler — "<em>${firstSentence.substring(0,50)}</em>". Interviewers judge the first 5 seconds heavily. Start with your main point directly.`);
+    } else if(iOpener){
+      const cleaned=firstSentence.replace(/^i think |^i feel like |^i guess /i,'I ');
+      tips.push(`<strong>Opening:</strong> You started with "<em>${firstSentence.substring(0,50)}</em>". Hedging words signal uncertainty. Say it confidently: "<em>${cleaned}</em>".`);
+    }
+  }
+
+  // 2. Relevance partial — mention what was missing
+  if(relevance.score<50){
+    tips.push(`<strong>Relevance:</strong> Your answer only partially addressed the question. The question asks about ${(question.split(/\s+/).slice(0,6).join(' '))}. Make sure your answer directly and specifically responds to what was asked.`);
+  }
+
+  // 3. Filler words
+  if(s.fillers>0){
+    const fillerRx=/\b(um+|uh+|like|you know|basically|literally|right|so,|well,)\b/gi;
+    const found=[...t.matchAll(fillerRx)].slice(0,3).map(m=>m[0]);
+    const uniq=[...new Set(found)];
+    if(s.fillers>8){
+      tips.push(`<strong>Filler words (critical):</strong> ${s.fillers} fillers detected — "${uniq.join('", "')}" and others. Replace each with a silent breath.`);
+    } else if(s.fillers>3){
+      tips.push(`<strong>Filler words:</strong> ${s.fillers} fillers including "${uniq.join('", "')}". Aim for zero — replace with a deliberate pause.`);
+    } else {
+      tips.push(`<strong>Filler words:</strong> ${s.fillers} minor filler${s.fillers>1?'s':''} — almost clean.`);
+    }
+  }
+
+  // 4. Vocabulary
+  if(s.vocab<75&&t.length>20){
+    const weakMap=[
+      {rx:/\b(really |very )?good\b/gi,better:'strong / effective / proficient'},
+      {rx:/\bstuff\b/gi,better:'responsibilities / tasks'},
+      {rx:/\bthings\b/gi,better:'aspects / factors'},
+      {rx:/\ba lot\b/gi,better:'significantly / considerably'},
+      {rx:/\bhard\b/gi,better:'challenging / demanding'},
+      {rx:/\bbig\b/gi,better:'significant / substantial'},
+      {rx:/\bhelp\b/gi,better:'support / facilitate'},
+      {rx:/\bmake\b/gi,better:'develop / create'},
+      {rx:/\bfix\b/gi,better:'resolve / address'},
+    ];
+    const weakFound=[];
+    weakMap.forEach(({rx,better})=>{ const m=t.match(rx); if(m) weakFound.push({word:m[0],better}); });
+    if(weakFound.length>0){
+      const ex=weakFound.slice(0,2);
+      tips.push(`<strong>Vocabulary:</strong> Weak words like "<em>${ex.map(e=>e.word).join('", "')}</em>" detected. Instead of "${ex[0].word}", use "${ex[0].better}".`);
+    }
+  }
+
+  // 5. Sentence structure
+  if(s.sentences<75&&s.issues){
+    const sentIssue=(s.issues||[]).find(i=>i.type==='sentence');
+    if(sentIssue?.examples?.length>0){
+      tips.push(`<strong>Sentence structure:</strong> "${sentIssue.examples[0]}" — missing a subject or verb. Every sentence needs both. Example fix: "I resolved this by taking [specific action]."`);
+    }
+  }
+
+  // 6. Professionalism
+  if(s.professional<80&&s.issues){
+    const profIssue=(s.issues||[]).find(i=>i.type==='professional');
+    if(profIssue?.examples?.length>0){
+      tips.push(`<strong>Professionalism:</strong> ${profIssue.examples[0]}. One casual word can cost you the impression of being prepared.`);
+    }
+  }
+
+  // 7. Grammar
+  if(s.grammar<80&&s.issues){
+    const gramIssue=(s.issues||[]).find(i=>i.type==='grammar');
+    if(gramIssue?.examples?.length>0){
+      tips.push(`<strong>Grammar:</strong> ${gramIssue.examples[0]}. Grammar errors signal a lack of preparation.`);
+    }
+  }
+
+  // 8. Answer length
+  if(wc>0&&wc<40){
+    tips.push(`<strong>Answer length:</strong> Only ${wc} words. Strong answers to "${question.substring(0,40)}..." need 100–200 words minimum. Use STAR: Situation → Task → Action → Result.`);
+  } else if(wc>300){
+    tips.push(`<strong>Answer length:</strong> ${wc} words — too long. Aim for 2 minutes max. Cut anything that doesn't directly answer the question.`);
+  }
+
+  // 9. Fluency
+  if(s.fluency<60){
+    tips.push(`<strong>Fluency:</strong> Many pauses detected. Practise this exact question 5 times out loud — not to memorise words, but to lock in the 3–4 key points you want to make.`);
+  }
+
+  // 10. Expression
+  if(s.expr<60){
+    tips.push(`<strong>Body language:</strong> Face appeared tense. Take one slow breath before answering, relax your jaw, and look at the camera. This changes how you come across physically.`);
+  }
+
+  // 11. Positives
+  const positives=[];
+  if(s.grammar>=85) positives.push('clean grammar');
+  if(s.fluency>=75) positives.push('good speech flow');
+  if(s.professional>=85) positives.push('professional tone');
+  if(s.vocab>=80) positives.push('strong vocabulary');
+  if(s.fillers===0) positives.push('zero filler words');
+  if(relevance.score>=60) positives.push('answered the question directly');
+  if(positives.length>0){
+    tips.push(`<strong>What worked:</strong> ${positives.join(', ')}. Maintain these in every answer.`);
+  }
+
+  const overall=s.overall;
+  let summary='';
+  if(overall>=85) summary='<strong>Overall:</strong> Excellent answer. This would impress most interviewers.';
+  else if(overall>=70) summary='<strong>Overall:</strong> Competent — address the specific issues above before your real interview.';
+  else if(overall>=50) summary='<strong>Overall:</strong> Developing. Record this same question again with the improvements.';
+  else summary='<strong>Overall:</strong> Needs substantial work. Fix the top 2 issues above, then record again.';
+
+  const html=tips.map((tip,i)=>i===0
+    ?`<p style="margin-bottom:10px;font-size:12px;color:var(--text3);font-family:var(--font-m);">${tip}</p>`
+    :`<p style="margin-bottom:10px;padding-left:12px;border-left:2px solid var(--border2);font-size:13px;color:var(--text2);line-height:1.7;">${tip}</p>`
   ).join('');
+  return html+`<p style="margin-top:4px;font-size:13px;">${summary}</p>`;
 }
 
-function updateQuestion() {
-  const q = QUESTIONS[qIndex];
-  setText('q-num',  `Q${qIndex+1} / ${QUESTIONS.length}`);
-  setText('q-text', q.q);
-  setText('q-hint', q.hint);
+// Generate a short answer guide based on the question
+function getAnswerGuide(question){
+  const q=question.toLowerCase();
+  const guides={
+    'yourself|background':['Brief intro — name, school/background','1–2 relevant projects or experiences','Why you are interested in this field'],
+    'pressure|deadline|stress':['Describe the specific situation and deadline','What YOU did to manage it','The outcome and what you learned'],
+    'strength|good at':['Name one specific strength','Give a concrete example proving it','Explain how it applies to this role'],
+    'fail|mistake|went wrong':['Describe the failure honestly','What you learned from it','How you changed your approach afterward'],
+    'disagree|conflict|teammate':['Describe the disagreement briefly','How you communicated respectfully','The resolution and outcome'],
+    'future|five years|goal':['Where you want to be in your career','Skills you want to develop','Why this role helps you get there'],
+    'role|why|company':['What specifically excites you about this role','How your skills match the job requirements','Why this company in particular'],
+    'project|built|created':['What the project was and the problem it solved','Your specific contribution','The measurable outcome or result'],
+    'debug|solve|problem':['Your step-by-step problem-solving process','A specific example of using it','The result of applying that process'],
+    'prioritise|multiple|tasks':['Your framework for deciding what matters most','A real example of applying it','How you communicate priorities to others'],
+  };
+  for(const [pattern,bullets] of Object.entries(guides)){
+    if(new RegExp(pattern,'i').test(q)){
+      return '<ul style="margin:8px 0 0 16px;font-size:12px;color:var(--text2);line-height:2;">'+bullets.map(b=>`<li>${b}</li>`).join('')+'</ul>';
+    }
+  }
+  return '<ul style="margin:8px 0 0 16px;font-size:12px;color:var(--text2);line-height:2;"><li>Directly answer what was asked</li><li>Give a specific real-life example</li><li>State a clear outcome or result</li></ul>';
 }
 
-function nextQuestion() {
-  qIndex = (qIndex + 1) % QUESTIONS.length;
-  updateQuestion();
+function closeReview(){
+  document.getElementById('review-panel').classList.remove('open');
+  const v=document.getElementById('pb-video');
+  v.pause();v.src='';
+  currentRevId=null;
 }
 
-function useQuestion(idx) {
-  qIndex = idx;
-  updateQuestion();
-  showPage('session');
-  toast('Question loaded in session', 'success');
+// ============= QUESTIONS =============
+function nextQ(){qIdx=(qIdx+1)%QS.length;updateQ();}
+function updateQ(){
+  const q=QS[qIdx];
+  document.getElementById('qnum').textContent=`Q${qIdx+1} / ${QS.length}`;
+  document.getElementById('qtext').textContent=q.q;
+  document.getElementById('qhint').textContent=q.hint;
 }
-
-function buildQuestionBank() {
-  const container = el('question-bank');
-  const cats = [...new Set(QUESTIONS.map(q => q.cat))];
-
-  cats.forEach(cat => {
-    const header = document.createElement('div');
-    header.style.cssText = 'font-size:11px;font-family:var(--font-m);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:.5rem;margin-bottom:6px;';
-    header.textContent = cat;
-    container.appendChild(header);
-
-    QUESTIONS.filter(q => q.cat === cat).forEach(q => {
-      const card = document.createElement('div');
-      card.style.cssText = 'background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-s);padding:12px 14px;cursor:pointer;transition:border-color .2s;';
-      card.onmouseenter = () => card.style.borderColor = 'var(--border2)';
-      card.onmouseleave = () => card.style.borderColor = 'var(--border)';
-      card.innerHTML = `
-        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;">${q.q}</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;">${q.hint}</div>
-        <div style="font-size:11px;font-family:var(--font-m);color:var(--purple);">Script: ${q.script}</div>
-        <button onclick="useQuestion(${QUESTIONS.indexOf(q)})" style="margin-top:8px;background:none;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;font-family:var(--font-b);">Use this question →</button>
-      `;
-      container.appendChild(card);
+function buildQBank(){
+  const c=document.getElementById('qbank');
+  const cats=[...new Set(QS.map(q=>q.cat))];
+  cats.forEach(cat=>{
+    const h=document.createElement('div');
+    h.className='cat-lbl';h.textContent=cat;c.appendChild(h);
+    QS.filter(q=>q.cat===cat).forEach(q=>{
+      const card=document.createElement('div');
+      card.className='qbcard';
+      card.innerHTML=`<div class="qbq">${q.q}</div><div class="qbh">${q.hint}</div><div class="qbs">Script: ${q.script}</div><button class="buseq" onclick="useQ(${QS.indexOf(q)})">Use this question →</button>`;
+      c.appendChild(card);
     });
   });
 }
+function useQ(i){qIdx=i;updateQ();showPage('session');toast('Question loaded','ok');}
 
-// ===================== NAVIGATION =====================
-function showPage(page) {
-  ['session','recordings','questions'].forEach(p => {
-    const pg = el('page-'+p);
-    pg.style.display = p===page ? 'flex' : 'none';
-    if (p===page) pg.style.flexDirection = 'column';
+// ============= NAVIGATION =============
+const PAGES={session:{t:'Live Session',s:'Record and analyse your interview answer'},recordings:{t:'Recordings',s:'Review, watch back and delete your sessions'},questions:{t:'Question Bank',s:'Browse questions with answer scripts'}};
+function showPage(p){
+  ['session','recordings','questions'].forEach(x=>{
+    const el=document.getElementById('pg-'+x);
+    el.style.display=x===p?'block':'none';
   });
-  document.querySelectorAll('.nav-link').forEach((lnk, i) => {
-    lnk.classList.toggle('active', ['session','recordings','questions'][i]===page);
+  document.querySelectorAll('.nl').forEach((el,i)=>{
+    el.classList.toggle('active',['session','recordings','questions'][i]===p);
   });
-  const titles = { session:'Live Session', recordings:'Recordings', questions:'Question Bank' };
-  const subs   = { session:'Start recording your peer interview', recordings:'Review and delete your saved sessions', questions:'Browse questions and answer scripts' };
-  setText('page-title', titles[page]);
-  setText('page-sub',   subs[page]);
+  document.getElementById('ptitle').textContent=PAGES[p].t;
+  document.getElementById('psub').textContent=PAGES[p].s;
 }
 
-// ===================== RENAME RECORDING =====================
-function startRename(id, nameEl) {
-  // Prevent double-triggering if already editing
-  if (nameEl.querySelector('input')) return;
-
-  const rec = recordings.find(r => r.id === id);
-  if (!rec) return;
-
-  const input = document.createElement('input');
-  input.className = 'rename-input';
-  input.value = rec.name;
-  nameEl.innerHTML = '';
-  nameEl.appendChild(input);
-  input.focus();
-  input.select();
-
-  const commit = () => {
-    const newName = input.value.trim() || rec.name;
-    rec.name = newName;
-    saveRecordings();
-    renderRecordings();
-    // Also update playback panel title if this session is open
-    if (currentPlaybackId === id) setText('pb-title', newName);
-    toast('Session renamed', 'success');
-  };
-
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-    if (e.key === 'Escape') {
-      input.removeEventListener('blur', commit);
-      renderRecordings(); // cancel — re-render without saving
-    }
-  });
+// ============= TOAST =============
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+type;
+  setTimeout(()=>el.className='toast',2800);
 }
 
-
-function openAccountModal() {
-  el('account-input').value = el('user-name').textContent;
-  el('account-modal').style.display = 'flex';
-  setTimeout(() => el('account-input').focus(), 50);
-}
-
-function closeAccountModal() {
-  el('account-modal').style.display = 'none';
-}
-
-function saveAccount() {
-  const name = el('account-input').value.trim();
-  if (!name) return;
-  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  setText('user-name', name);
-  setText('user-av', initials);
-  try { localStorage.setItem('peerprep_account', name); } catch(e) {}
-  closeAccountModal();
-  toast('Account updated', 'success');
-}
-
-// Close modal on backdrop click
-el('account-modal').addEventListener('click', e => {
-  if (e.target === el('account-modal')) closeAccountModal();
-});
-
-
-function toast(msg, type='') {
-  const t = el('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 2800);
-}
-
+// Init
+updateQ();
 </script>
 </body>
 </html>
